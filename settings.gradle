@@ -1,0 +1,4 @@
+include 'computer'
+include 'assembler'
+rootProject.name = 'kotlincpu'
+

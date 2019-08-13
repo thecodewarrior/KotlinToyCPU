@@ -1,0 +1,21 @@
+Locations:
+  Program counter: CTR
+  Registers: reg[0], R1, R2, ...
+  Memory: @label, #register, #CTR
+
+Assembly meta:
+  `label:`
+  `#register `
+
+> CONST_Z  <register> <const : boolean>
+> CONST_B  <register> <const : byte>
+> CONST_UB <register> <const : ubyte>
+> CONST_S  <register> <const : short>
+> CONST_US <register> <const : ushort>
+> CONST_I  <register> <const : int>
+> CONST_UI <register> <const : uint>
+> CONST_L  <register> <const : long>
+> CONST_UL <register> <const : ulong>
+> CONST_F  <register> <const : float>
+> CONST_D  <register> <const : double>
+load constant to register
