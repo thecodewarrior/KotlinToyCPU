@@ -36,6 +36,17 @@ object InstructionRegistry {
         SimpleInsnFactory("DEC_L",   0x36u, Argument.Register("reg")),
         SimpleInsnFactory("DEC_UL",  0x37u, Argument.Register("reg")),
 
+        SimpleInsnFactory("ADD_B",   0x40u, Argument.Register("left"), Argument.Register("right"), Argument.Register("out")),
+        SimpleInsnFactory("ADD_UB",  0x41u, Argument.Register("left"), Argument.Register("right"), Argument.Register("out")),
+        SimpleInsnFactory("ADD_S",   0x42u, Argument.Register("left"), Argument.Register("right"), Argument.Register("out")),
+        SimpleInsnFactory("ADD_US",  0x43u, Argument.Register("left"), Argument.Register("right"), Argument.Register("out")),
+        SimpleInsnFactory("ADD_I",   0x44u, Argument.Register("left"), Argument.Register("right"), Argument.Register("out")),
+        SimpleInsnFactory("ADD_UI",  0x45u, Argument.Register("left"), Argument.Register("right"), Argument.Register("out")),
+        SimpleInsnFactory("ADD_L",   0x46u, Argument.Register("left"), Argument.Register("right"), Argument.Register("out")),
+        SimpleInsnFactory("ADD_UL",  0x47u, Argument.Register("left"), Argument.Register("right"), Argument.Register("out")),
+        SimpleInsnFactory("ADD_F",   0x48u, Argument.Register("left"), Argument.Register("right"), Argument.Register("out")),
+        SimpleInsnFactory("ADD_D",   0x49u, Argument.Register("left"), Argument.Register("right"), Argument.Register("out")),
+
         SimpleInsnFactory("HALT", 0xFFFFu)
     )
     val factoryMap: Map<String, InsnFactory> = factories.associateBy { it.name }
