@@ -76,7 +76,7 @@ class CpuStatusFrame(val cpu: CPU) : JFrame(), CoroutineScope by CoroutineScope(
             val maxIndexWidth = (cpu.registers.count - 1).toString().length
 
             val indexText = index.toString().padStart(maxIndexWidth)
-            val valueHex = cpu.registers.values[index].toString(16).padStart(16, '0')
+            val valueHex = cpu.registers[index].toString(16).padStart(16, '0')
             return "$indexText : 0x$valueHex"
         }
 

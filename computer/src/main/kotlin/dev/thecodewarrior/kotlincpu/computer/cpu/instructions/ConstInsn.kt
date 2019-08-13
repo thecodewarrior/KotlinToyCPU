@@ -11,25 +11,25 @@ class ConstInsn(name: String, opcode: UShort, width: UInt, val getValue: ByteBuf
 
     override fun run(cpu: CPU, buffer: ByteBuffer) {
         val register = buffer.getUByte()
-        cpu.registers.values[register.toInt()] = buffer.getValue()
+        cpu.registers[register.toInt()] = buffer.getValue()
     }
 
     companion object {
         val instructions = listOf(
-            ConstInsn("CONST_B",  0x10u, 1u) { getUByte().u64 },
-            ConstInsn("CONST_UB", 0x11u, 1u) { getUByte().u64 },
+            ConstInsn("CONST.i8",  0x10u, 1u) { getUByte().u64 },
+            ConstInsn("CONST.u8", 0x11u, 1u) { getUByte().u64 },
 
-            ConstInsn("CONST_S",  0x12u, 2u) { getUShort().u64 },
-            ConstInsn("CONST_US", 0x13u, 2u) { getUShort().u64 },
+            ConstInsn("CONST.i16",  0x12u, 2u) { getUShort().u64 },
+            ConstInsn("CONST.u16", 0x13u, 2u) { getUShort().u64 },
 
-            ConstInsn("CONST_I",  0x14u, 4u) { getUInt().u64 },
-            ConstInsn("CONST_UI", 0x15u, 4u) { getUInt().u64 },
+            ConstInsn("CONST.i32",  0x14u, 4u) { getUInt().u64 },
+            ConstInsn("CONST.u32", 0x15u, 4u) { getUInt().u64 },
 
-            ConstInsn("CONST_L",  0x16u, 8u) { getULong() },
-            ConstInsn("CONST_UL", 0x17u, 8u) { getULong() },
+            ConstInsn("CONST.i64",  0x16u, 8u) { getULong() },
+            ConstInsn("CONST.u64", 0x17u, 8u) { getULong() },
 
-            ConstInsn("CONST_F",  0x18u, 4u) { getFloat().u64 },
-            ConstInsn("CONST_D",  0x19u, 8u) { getDouble().u64 }
+            ConstInsn("CONST.f32",  0x18u, 4u) { getFloat().u64 },
+            ConstInsn("CONST.f64",  0x19u, 8u) { getDouble().u64 }
         )
     }
 }

@@ -1,9 +1,10 @@
 package dev.thecodewarrior.kotlincpu.assembler.instructions
 
+import dev.thecodewarrior.kotlincpu.assembler.Context
 import dev.thecodewarrior.kotlincpu.assembler.Parser
 import java.nio.ByteBuffer
 
-abstract class Insn() {
+abstract class Insn {
     /**
      * The assembly
      */
@@ -17,7 +18,7 @@ abstract class Insn() {
     /**
      * The labels this instruction is marked with
      */
-    val labels: MutableSet<String> = mutableSetOf()
+    lateinit var context: Context
 
     /**
      * The instruction size in bytes

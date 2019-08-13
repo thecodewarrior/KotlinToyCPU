@@ -13,7 +13,7 @@ class Computer {
     val cpu = CPU(this)
 
     var running: Boolean = false
-    var clockSpeed: Int = 10
+    var clockSpeed: Int = 2
 
     fun loadProgram(program: ByteBuffer) {
         memory.buffer.put(program)

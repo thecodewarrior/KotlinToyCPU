@@ -54,7 +54,7 @@ class Tokenizer(data: String) {
         return this
     }
 
-    fun advance(): Tokenizer {
+    fun forward(): Tokenizer {
         if (index >= tokens.size)
             throw ParseException(tokens[tokens.size - 1], "End of file reached")
         setIndex(getIndex() + 1)
@@ -65,7 +65,7 @@ class Tokenizer(data: String) {
      * Gets the token at the current index.
      * @return The token at the current index
      */
-    fun current(): Token {
+    fun peek(): Token {
         return tokens[index]
     }
 
@@ -73,7 +73,7 @@ class Tokenizer(data: String) {
      * Gets the token at the current index and advances to the next token.
      * @return The token at the current index
      */
-    operator fun next(): Token {
+    fun pop(): Token {
         if (index >= tokens.size)
             throw ParseException(tokens[tokens.size - 1], "End Of File reached")
         return tokens[index++]

@@ -4,6 +4,7 @@ import dev.thecodewarrior.kotlincpu.computer.util.extensions.getUByte
 import dev.thecodewarrior.kotlincpu.computer.util.extensions.getUInt
 import dev.thecodewarrior.kotlincpu.computer.util.extensions.getULong
 import dev.thecodewarrior.kotlincpu.computer.util.extensions.getUShort
+import java.nio.ByteBuffer
 
 object InstructionRegistry {
     val instructions: List<Insn> = listOf(
@@ -13,7 +14,8 @@ object InstructionRegistry {
         }
     ) +
         ConstInsn.instructions +
-        ArithmeticInsn.instructions
+        ArithmeticInsn.instructions +
+        JumpInsn.instructions
 
-    val instructionMap: Map<UShort, Insn> = instructions.associateBy { it.opcode }
+    fun findInsn(buffer: ByteBuffer, address: Int): Insn? = instructions.find { it.matches(buffer, address) }
 }

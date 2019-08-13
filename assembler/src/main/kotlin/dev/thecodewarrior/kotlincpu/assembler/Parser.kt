@@ -9,25 +9,38 @@ import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 
 class Parser(val file: String, val text: String) {
-    val labels = mutableMapOf<String, Label>()
     val registers = mutableMapOf<String, UByte>()
 
     val instructions = mutableListOf<Insn>()
+    var context = Context(null)
 
     init {
-        val lines = text.lines()
         val tokens = Tokenizer(text)
+        val labels = mutableSetOf<String>()
         while(!tokens.eof()) {
-            val name = tokens.next()
+            if(tokens.peek().testLine()) {
+                tokens.pop()
+                continue
+            }
+            while(tokens.peek().value.endsWith(':')) {
+                labels.add(tokens.pop().value.removeSuffix(":"))
+            }
+
+            val name = tokens.pop()
             if(name.testLine())
                 continue
 
             val factory = InstructionRegistry.factoryMap.getValue(name.value)
             val insn = factory.parse(this, tokens)
+
             insn.sourceMap = SourceMap(file, name.line)
+            insn.context = context
+            context.labels.addAll(labels.map { Label(it, insn) })
+            labels.clear()
+
             instructions.add(insn)
             if(!tokens.eof())
-                tokens.next().expectLine()
+                tokens.pop().expectLine()
         }
 
         instructions.fold(0) { address, insn ->
@@ -50,7 +63,6 @@ class Parser(val file: String, val text: String) {
 
         instructions.forEach { insn ->
             val insnArray = buildBytes { insn.push(it, this)  }
-            buffer.put(insnArray)
 
             val insnBytes = insnArray
                 .map { it.toUByte().toString(16).padStart(2, '0') }
@@ -65,11 +77,13 @@ class Parser(val file: String, val text: String) {
                     insnPayload.padEnd(insnBytesTextWidth, ' ') +
                     " > $sourceLine"
             )
+
+            if(insnArray.size != insn.width)
+                error("Expected size ${insn.width} is not actual size ${insnArray.size}")
+            buffer.put(insnArray)
         }
         return buffer
     }
 }
-
-data class Label(val name: String, var address: ULong?)
 
 private val logger = LoggerFactory.getLogger(Parser::class.java)
