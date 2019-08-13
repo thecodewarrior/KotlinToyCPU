@@ -1,45 +1,38 @@
 package dev.thecodewarrior.kotlincpu.computer
 
-import dev.thecodewarrior.kotlincpu.computer.ui.CpuStatusController
-import dev.thecodewarrior.kotlincpu.computer.util.resource
-import javafx.application.Application
-import javafx.fxml.FXMLLoader
-import javafx.scene.Parent
-import javafx.scene.Scene
-import javafx.stage.Stage
+import dev.thecodewarrior.kotlincpu.computer.cpu.Computer
+import dev.thecodewarrior.kotlincpu.computer.ui.CpuStatusFrame
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
-import java.nio.ByteBuffer
 import java.util.prefs.Preferences
+import javax.swing.UIManager
 
-class Main: Application() {
-    @Throws(Exception::class)
-    override fun start(primaryStage: Stage) {
-        Companion.primaryStage = primaryStage
-        val loader = FXMLLoader()
-        val root = loader.load<Parent>(resource("/ui/CpuStatusController.fxml").openStream())
-        val controller = loader.getController<CpuStatusController>()
-        primaryStage.title = "CPU"
-        primaryStage.scene = Scene(root, 320.0, 270.0)
-        primaryStage.show()
+object Main : CoroutineScope by CoroutineScope(Dispatchers.Default) {
+    val preferences = Preferences.userNodeForPackage(Main::class.java)
 
-        val programFile = File(parameters.named["program"]!!)
-        val program = ByteBuffer.wrap(programFile.readBytes())
-        controller.computer.loadProgram(program)
-        controller.computer.running = true
-        GlobalScope.launch {
-            controller.computer.start()
+    var computer = Computer()
+
+    val cpuStatus = CpuStatusFrame(computer.cpu)
+
+    init {
+        launch {
+            computer.start()
         }
+        cpuStatus.isVisible = true
     }
 
-    companion object {
-        lateinit var primaryStage: Stage
-        val preferences = Preferences.userNodeForPackage(Main::class.java)
-    }
 }
 
 fun main(args: Array<String>) {
-//    SoundEffects // load the converter sound up front to avoid obtuse errors
-    Application.launch(Main::class.java, *args)
+    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+    Main // start app
+    Main.computer.memory.buffer.also { buf ->
+        buf.rewind()
+        buf.put(File(args[0]).readBytes())
+    }
 }
+
+

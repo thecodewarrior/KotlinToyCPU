@@ -1,6 +1,7 @@
 @file:JvmName("MathUtils")
 package dev.thecodewarrior.kotlincpu.computer.util
 
+import java.awt.Dimension
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.round
@@ -54,3 +55,5 @@ fun vec(x: Double, y: Double): Vec2d = Vec2d.getPooled(x, y)
  * this allocates no objects: `MathUtils.veci(1, 0)`
  */
 fun veci(x: Int, y: Int): Vec2i = Vec2i.getPooled(x, y)
+
+fun dim(x: Int, y: Int): Dimension = Dimension(x, y)

@@ -65,7 +65,9 @@ object InstructionRegistry {
             cpu.registers.values[register.toInt()] = value.toRawBits().toULong()
         },
 
-        SimpleInsn("HALT", 0xFFu, 0u) { cpu, _ -> cpu.computer.running = false }
+        SimpleInsn("HALT", 0xFFFFu, 0u) { cpu, _ ->
+            cpu.computer.running = false
+        }
     )
 
     val instructionMap: Map<UShort, Insn> = instructions.associateBy { it.opcode }

@@ -1,5 +1,6 @@
 package dev.thecodewarrior.kotlincpu.computer.cpu
 
+import dev.thecodewarrior.kotlincpu.computer.cpu.instructions.Insn
 import dev.thecodewarrior.kotlincpu.computer.cpu.instructions.InstructionRegistry
 import dev.thecodewarrior.kotlincpu.computer.util.extensions.getUShort
 import org.slf4j.LoggerFactory
@@ -13,12 +14,17 @@ class CPU(val computer: Computer) {
 
     val programBuffer = ByteBuffer.wrap(computer.memory.buffer.array())
 
+    fun instructionAt(address: Int): Insn {
+        programBuffer.position(address)
+        val opcode = programBuffer.getUShort()
+        return InstructionRegistry.instructionMap.getValue(opcode)
+    }
+
     fun step() {
         val insnAddress = ctr.toInt()
         try {
-            programBuffer.position(insnAddress)
-            val opcode = programBuffer.getUShort()
-            val insn = InstructionRegistry.instructionMap.getValue(opcode)
+            val insn = instructionAt(insnAddress)
+            programBuffer.position(insnAddress + 2)
             ctr += 2u + insn.width
             insn.run(this, programBuffer)
         } catch(e: Exception) {
