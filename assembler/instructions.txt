@@ -7,15 +7,36 @@ Assembly meta:
   `label:`
   `#register `
 
-> CONST_Z  <register> <const : boolean>
-> CONST_B  <register> <const : byte>
-> CONST_UB <register> <const : ubyte>
-> CONST_S  <register> <const : short>
-> CONST_US <register> <const : ushort>
-> CONST_I  <register> <const : int>
-> CONST_UI <register> <const : uint>
+> CONST  <register> <const : int>
+> CONST_U <register> <const : uint>
 > CONST_L  <register> <const : long>
 > CONST_UL <register> <const : ulong>
+> CONST_Z  <register> <const : boolean>
 > CONST_F  <register> <const : float>
 > CONST_D  <register> <const : double>
 load constant to register
+
+> INC <register>
+> INC_L <register>
+> INC_U <register>
+increment a value
+
+> DEC <register>
+> DEC_L <register>
+> DEC_U <register>
+decrement a value
+
+> ADD <register> <register> <register>
+> ADD_U <register> <register> <register>
+> ADD_F <register> <register> <register>
+> ADD_D <register> <register> <register>
+add two values
+
+> SUB_U <register> <register> <register>
+> SUB_B <register> <register> <register>
+> SUB_S <register> <register> <register>
+> SUB_I <register> <register> <register>
+> SUB_L <register> <register> <register>
+> SUB_F <register> <register> <register>
+> SUB_D <register> <register> <register>
+subtract two values

@@ -8,7 +8,7 @@ import javafx.scene.Scene
 import javafx.stage.Modality
 import javafx.stage.Stage
 
-class LogDisplay {
+class LogDisplayFrame {
     companion object {
         fun open() {
             val root = FXMLLoader.load<Parent>(resource("/ui/settings.fxml"))

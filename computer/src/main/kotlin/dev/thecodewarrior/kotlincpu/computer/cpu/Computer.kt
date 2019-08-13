@@ -27,10 +27,14 @@ class Computer {
         while(true) {
             clock.receive()
             if(running) {
-                cpu.step()
+                step()
                 postClock.forEach { it.offer(Unit) }
             }
         }
+    }
+
+    fun step() {
+        cpu.step()
     }
 
     fun createPostClockChannel(): ReceiveChannel<Unit> {

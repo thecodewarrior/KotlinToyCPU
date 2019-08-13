@@ -1,5 +1,6 @@
 package dev.thecodewarrior.kotlincpu.assembler.instructions
 
+import dev.thecodewarrior.kotlincpu.assembler.Constants
 import dev.thecodewarrior.kotlincpu.assembler.Parser
 import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Tokenizer
 import dev.thecodewarrior.kotlincpu.assembler.util.putUByte
@@ -187,7 +188,7 @@ sealed class Argument(val name: String, val width: kotlin.Int) {
             val specialIndex = specials.indexOf(value)
 
             val register: kotlin.UByte = when {
-                specialIndex >= 0 -> (256 - specials.size + specialIndex).toUByte()
+                specialIndex >= 0 -> (Constants.registerCount - specials.size + specialIndex).toUByte()
                 value.startsWith("R") -> value.removePrefix("R").toUByte()
                 else -> parser.registers[value]!!
             }

@@ -7,10 +7,10 @@ import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 
 class CPU(val computer: Computer) {
-    val registers = Registers(this, 256)
+    val registers = Registers(this, Constants.registerCount)
     var ctr: UInt
-        get() = registers.values[0xFF].toUInt()
-        set(value) { registers.values[0xFF] = value.toULong() }
+        get() = registers.values[registers.count-1].toUInt()
+        set(value) { registers.values[registers.count-1] = value.toULong() }
 
     val programBuffer = ByteBuffer.wrap(computer.memory.buffer.array())
 
