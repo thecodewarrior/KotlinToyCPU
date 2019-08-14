@@ -8,9 +8,9 @@ import java.nio.ByteBuffer
 
 class CPU(val computer: Computer) {
     val registers = Registers(this, Constants.registerCount)
-    var ctr: UInt
-        get() = registers[registers.count-1].toUInt()
-        set(value) { registers[registers.count-1] = value.toULong() }
+    var pc: UInt
+        get() = registers[registers.count-1]
+        set(value) { registers[registers.count-1] = value }
 
     val programBuffer = ByteBuffer.wrap(computer.memory.buffer.array())
 
@@ -20,11 +20,11 @@ class CPU(val computer: Computer) {
     }
 
     fun step() {
-        val insnAddress = ctr.toInt()
+        val insnAddress = pc.toInt()
         try {
             val insn = instructionAt(insnAddress)
             programBuffer.pos = insn.dataStart(programBuffer, insnAddress)
-            ctr += insn.width
+            pc += insn.width.toUInt()
             insn.run(this, programBuffer)
         } catch(e: Exception) {
             logger.error("Error at insn 0x${insnAddress.toString(16)}", e)

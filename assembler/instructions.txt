@@ -1,42 +1,22 @@
-Locations:
-  Program counter: CTR
-  Registers: reg[0], R1, R2, ...
-  Memory: @label, #register, #CTR
+; program counter register (pc) is read-only, and always points to the next instruction
+; <<...>> is a placeholder, not syntax
 
-Assembly meta:
-  `label:`
-  `#register `
+label: <<data>>
 
-> CONST  <register> <const : int>
-> CONST_U <register> <const : uint>
-> CONST_L  <register> <const : long>
-> CONST_UL <register> <const : ulong>
-> CONST_Z  <register> <const : boolean>
-> CONST_F  <register> <const : float>
-> CONST_D  <register> <const : double>
-load constant to register
+mov r0, #712 ; move immediate value 712
+mov r0, #:label ; move address of label
+ldr r0, label ; load data at label
+ldr r0, [#16] ; load data at address 16. Value must be word-aligned (a multiple of 4 bytes)
+ldr r0, [r2] ; load data at the address `r2`
+ldr r0, [pc, #8] ; load data at the address `pc + 8`
+ldr r0, [pc, r2] ; load data at the address `pc + r2`
 
-> INC <register>
-> INC_L <register>
-> INC_U <register>
-increment a value
 
-> DEC <register>
-> DEC_L <register>
-> DEC_U <register>
-decrement a value
 
-> ADD <register> <register> <register>
-> ADD_U <register> <register> <register>
-> ADD_F <register> <register> <register>
-> ADD_D <register> <register> <register>
-add two values
+    cmp r0, #3 ; compare r0 and 3
+    jmp_eq label ; jump if equal
+    mov r0, #712 ; stuff to be skipped
+label:
+    mov r0, #3
 
-> SUB_U <register> <register> <register>
-> SUB_B <register> <register> <register>
-> SUB_S <register> <register> <register>
-> SUB_I <register> <register> <register>
-> SUB_L <register> <register> <register>
-> SUB_F <register> <register> <register>
-> SUB_D <register> <register> <register>
-subtract two values
+lt? ldr r0, [pc, r2] ; only execute if comparison resulted in a less than

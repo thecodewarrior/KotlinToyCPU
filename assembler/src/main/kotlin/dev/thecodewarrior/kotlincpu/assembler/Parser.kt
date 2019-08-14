@@ -15,7 +15,8 @@ class Parser(val file: String, val text: String) {
     var context = Context(null)
 
     init {
-        val tokens = Tokenizer(text)
+        val commentRegex = ";[^\"]*$".toRegex()
+        val tokens = Tokenizer(text.replace(commentRegex, ""))
         val labels = mutableSetOf<String>()
         while(!tokens.eof()) {
             if(tokens.peek().testLine()) {
@@ -26,9 +27,17 @@ class Parser(val file: String, val text: String) {
                 labels.add(tokens.pop().value.removeSuffix(":"))
             }
 
-            val name = tokens.pop()
-            if(name.testLine())
+            if(tokens.peek().testLine())
                 continue
+
+            val condition: String? =
+                if(tokens.peek().value.endsWith("?")) {
+                    tokens.pop().value.removeSuffix("?")
+                } else {
+                    null
+                }
+
+            val name = tokens.pop()
 
             val factory = InstructionRegistry.factoryMap.getValue(name.value)
             val insn = factory.parse(this, tokens)

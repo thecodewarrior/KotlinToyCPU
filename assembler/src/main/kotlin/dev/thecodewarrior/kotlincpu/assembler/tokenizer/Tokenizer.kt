@@ -5,12 +5,22 @@ import java.util.regex.Pattern
 
 class Tokenizer(data: String) {
 
-    private var index = 0
+    private var _index = 0
+    var index: Int
+        get() = _index
+        set(value) {
+            when {
+                _index < 0 -> _index = 0
+                value > tokens.size -> _index = tokens.size
+                else -> _index = index
+            }
+        }
+
     private val tokens = ArrayList<Token>()
 
     init {
         val initialWhitespacePattern = Pattern.compile("^\\s*")
-        val tokenPattern = Pattern.compile("(\"[^\"]*\"|\\S+)(\\s*)")
+        val tokenPattern = Pattern.compile("""("[^"]*"|\[[^\]]\]|[^\s,]+)(,?\s*)""")
 
         val lines = data.split("\\r?\\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         for (lineNum in lines.indices) {
@@ -33,31 +43,17 @@ class Tokenizer(data: String) {
         index = 0
     }
 
-    fun getIndex(): Int {
-        return index
-    }
-
-    fun setIndex(index: Int) {
-        if (index < 0) {
-            this.index = 0
-        } else if (index > tokens.size) {
-            this.index = tokens.size
-        } else {
-            this.index = index
-        }
-    }
-
     fun back(): Tokenizer {
         if (index < 0)
             throw ParseException(tokens[0], "Beginning of file reached")
-        setIndex(getIndex() - 1)
+        index--
         return this
     }
 
     fun forward(): Tokenizer {
         if (index >= tokens.size)
             throw ParseException(tokens[tokens.size - 1], "End of file reached")
-        setIndex(getIndex() + 1)
+        index++
         return this
     }
 

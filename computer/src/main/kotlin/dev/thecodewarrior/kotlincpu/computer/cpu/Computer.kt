@@ -28,13 +28,13 @@ class Computer {
             clock.receive()
             if(running) {
                 step()
-                postClock.forEach { it.offer(Unit) }
             }
         }
     }
 
     fun step() {
         cpu.step()
+        postClock.forEach { it.offer(Unit) }
     }
 
     fun createPostClockChannel(): ReceiveChannel<Unit> {

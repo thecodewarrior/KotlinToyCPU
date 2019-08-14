@@ -5,19 +5,20 @@ import dev.thecodewarrior.kotlincpu.computer.util.dim
 import dev.thecodewarrior.kotlincpu.computer.util.extensions.rem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.swing.Swing
 import java.awt.BorderLayout
 import java.awt.Font
 import javax.swing.AbstractListModel
+import javax.swing.BoxLayout
+import javax.swing.JButton
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JList
+import javax.swing.JPanel
 import javax.swing.JScrollPane
+import javax.swing.JSpinner
 import javax.swing.JToggleButton
-import javax.swing.ListModel
-import javax.swing.event.ListDataListener
+import javax.swing.SpinnerNumberModel
 
 class CpuStatusFrame(val cpu: CPU) : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Main) {
 
@@ -28,12 +29,34 @@ class CpuStatusFrame(val cpu: CPU) : JFrame(), CoroutineScope by CoroutineScope(
         setLocationRelativeTo(null)
     }
 
-    val powerButton = JToggleButton("Power") %
+    val topRow = JPanel() %
+        { row ->
+            row.layout = BoxLayout(row, BoxLayout.LINE_AXIS)
+            contentPane.add(row, BorderLayout.PAGE_START)
+        }
+    val stepButton = JButton("Step") %
+        { button ->
+            button.addActionListener {
+                cpu.computer.step()
+            }
+            topRow.add(button)
+        }
+
+    val clockModel = SpinnerNumberModel(cpu.computer.clockSpeed, 1, 32, 1)
+    val clockSpeed = JSpinner(clockModel) %
+        { spinner ->
+            spinner.addChangeListener {
+                cpu.computer.clockSpeed = clockModel.number.toInt()
+            }
+            topRow.add(spinner)
+        }
+
+    val powerButton = JToggleButton("Clock") %
         { button ->
             button.addActionListener {
                 cpu.computer.running = button.isSelected
             }
-            contentPane.add(button, BorderLayout.PAGE_START)
+            topRow.add(button)
         }
 
     val opcode = JLabel() %
@@ -66,8 +89,8 @@ class CpuStatusFrame(val cpu: CPU) : JFrame(), CoroutineScope by CoroutineScope(
 
     fun updateUI() {
         powerButton.isSelected = cpu.computer.running
-        val insn = cpu.instructionAt(cpu.ctr.toInt())
-        opcode.text = "next operation: 0x${insn.opcode.toString(16).padStart(4, '0')} ${insn.name}"
+        val insn = cpu.instructionAt(cpu.pc.toInt())
+        opcode.text = "next operation: 0x${insn.opcode.opcode.toString(16).padStart(4, '0')} ${insn.name}"
         registersModel.update()
     }
 
@@ -76,7 +99,7 @@ class CpuStatusFrame(val cpu: CPU) : JFrame(), CoroutineScope by CoroutineScope(
             val maxIndexWidth = (cpu.registers.count - 1).toString().length
 
             val indexText = index.toString().padStart(maxIndexWidth)
-            val valueHex = cpu.registers[index].toString(16).padStart(16, '0')
+            val valueHex = cpu.registers[index].toString(16).padStart(8, '0')
             return "$indexText : 0x$valueHex"
         }
 
