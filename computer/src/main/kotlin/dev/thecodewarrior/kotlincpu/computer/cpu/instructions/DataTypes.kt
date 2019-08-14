@@ -37,61 +37,61 @@ val UInt.u16: UShort get() = this.toUShort()
 val Int.i8: Byte get() = this.toByte()
 val Int.i16: Short get() = this.toShort()
 
-sealed class DataType<T> {
+sealed class DataType<T>(val width: UInt) {
     abstract fun get(buffer: ByteBuffer): T
     abstract fun fromULong(value: ULong): T
     abstract fun toULong(value: T): ULong
 
-    object u8: DataType<UByte>() {
+    object u8: DataType<UByte>(1u) {
         override fun get(buffer: ByteBuffer): UByte = buffer.getUByte()
         override fun fromULong(value: ULong): UByte = value.u8
         override fun toULong(value: UByte): ULong = value.u64
     }
-    object i8: DataType<Byte>() {
+    object i8: DataType<Byte>(1u) {
         override fun get(buffer: ByteBuffer): Byte = buffer.get()
         override fun fromULong(value: ULong): Byte = value.i8
         override fun toULong(value: Byte): ULong = value.u64
     }
 
-    object u16: DataType<UShort>() {
+    object u16: DataType<UShort>(2u) {
         override fun get(buffer: ByteBuffer): UShort = buffer.getUShort()
         override fun fromULong(value: ULong): UShort = value.u16
         override fun toULong(value: UShort): ULong = value.u64
     }
-    object i16: DataType<Short>() {
+    object i16: DataType<Short>(2u) {
         override fun get(buffer: ByteBuffer): Short = buffer.getShort()
         override fun fromULong(value: ULong): Short = value.i16
         override fun toULong(value: Short): ULong = value.u64
     }
 
-    object u32: DataType<UInt>() {
+    object u32: DataType<UInt>(4u) {
         override fun get(buffer: ByteBuffer): UInt = buffer.getUInt()
         override fun fromULong(value: ULong): UInt = value.u32
         override fun toULong(value: UInt): ULong = value.u64
     }
-    object i32: DataType<Int>() {
+    object i32: DataType<Int>(4u) {
         override fun get(buffer: ByteBuffer): Int = buffer.getInt()
         override fun fromULong(value: ULong): Int = value.i32
         override fun toULong(value: Int): ULong = value.u64
     }
 
-    object u64: DataType<ULong>() {
+    object u64: DataType<ULong>(8u) {
         override fun get(buffer: ByteBuffer): ULong = buffer.getULong()
         override fun fromULong(value: ULong): ULong = value.u64
         override fun toULong(value: ULong): ULong = value.u64
     }
-    object i64: DataType<Long>() {
+    object i64: DataType<Long>(8u) {
         override fun get(buffer: ByteBuffer): Long = buffer.getLong()
         override fun fromULong(value: ULong): Long = value.i64
         override fun toULong(value: Long): ULong = value.u64
     }
 
-    object f32: DataType<Float>() {
+    object f32: DataType<Float>(4u) {
         override fun get(buffer: ByteBuffer): Float = buffer.getFloat()
         override fun fromULong(value: ULong): Float = value.f32
         override fun toULong(value: Float): ULong = value.u64
     }
-    object f64: DataType<Double>() {
+    object f64: DataType<Double>(4u) {
         override fun get(buffer: ByteBuffer): Double = buffer.getDouble()
         override fun fromULong(value: ULong): Double = value.f64
         override fun toULong(value: Double): ULong = value.u64

@@ -228,7 +228,7 @@ sealed class Argument(val name: String, val width: kotlin.Int) {
             val register: kotlin.UByte = when {
                 specialIndex >= 0 -> (Constants.registerCount - specials.size + specialIndex).toUByte()
                 value.startsWith("R") -> value.removePrefix("R").toUByte()
-                else -> parser.registers[value]!!
+                else -> parser.registers[value] ?: error("Unknown register $value")
             }
             buffer.putUByte(register)
         }

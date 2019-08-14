@@ -28,7 +28,7 @@ abstract class ArithmeticInsn(name: String, qualifier: UShort, width: UInt): Ins
         }
     }
 
-    class BinaryRightConstInsn<T>(name: String, qualifier: UShort, val type: DataType<T>, val operation: (T, T) -> T): ArithmeticInsn(name, qualifier, 3u) {
+    class BinaryRightConstInsn<T>(name: String, qualifier: UShort, val type: DataType<T>, val operation: (T, T) -> T): ArithmeticInsn(name, qualifier, 2u + type.width) {
         override fun run(cpu: CPU, buffer: ByteBuffer) {
             val left = buffer.getUByte()
             val right = type.get(buffer)
@@ -41,7 +41,7 @@ abstract class ArithmeticInsn(name: String, qualifier: UShort, width: UInt): Ins
         }
     }
 
-    class BinaryLeftConstInsn<T>(name: String, qualifier: UShort, val type: DataType<T>, val operation: (T, T) -> T): ArithmeticInsn(name, qualifier, 3u) {
+    class BinaryLeftConstInsn<T>(name: String, qualifier: UShort, val type: DataType<T>, val operation: (T, T) -> T): ArithmeticInsn(name, qualifier, 2u + type.width) {
         override fun run(cpu: CPU, buffer: ByteBuffer) {
             val left = type.get(buffer)
             val right = buffer.getUByte()
@@ -69,30 +69,31 @@ abstract class ArithmeticInsn(name: String, qualifier: UShort, width: UInt): Ins
             subtract()
             multiply()
             divide()
+            modulo()
         }
 
         private fun increment() {
             // increment
-            +UnaryInPlaceInsn("INC.i8",  0x000u, DataType.i8) { (it + 1).i8 }
-            +UnaryInPlaceInsn("INC.u8", 0x001u, DataType.u8) { (it + 1u).u8 }
-            +UnaryInPlaceInsn("INC.i16",  0x002u, DataType.i16) { (it + 1).i16 }
-            +UnaryInPlaceInsn("INC.u16", 0x003u, DataType.u16) { (it + 1u).u16 }
-            +UnaryInPlaceInsn("INC.i32",  0x004u, DataType.i32) { it + 1 }
-            +UnaryInPlaceInsn("INC.u32", 0x005u, DataType.u32) { it + 1u }
-            +UnaryInPlaceInsn("INC.i64",  0x006u, DataType.i64) { it + 1 }
-            +UnaryInPlaceInsn("INC.u64", 0x007u, DataType.u64) { it + 1u }
+            +UnaryInPlaceInsn("IN_RC.i8",  0x000u, DataType.i8) { (it + 1).i8 }
+            +UnaryInPlaceInsn("IN_RC.u8", 0x001u, DataType.u8) { (it + 1u).u8 }
+            +UnaryInPlaceInsn("IN_RC.i16",  0x002u, DataType.i16) { (it + 1).i16 }
+            +UnaryInPlaceInsn("IN_RC.u16", 0x003u, DataType.u16) { (it + 1u).u16 }
+            +UnaryInPlaceInsn("IN_RC.i32",  0x004u, DataType.i32) { it + 1 }
+            +UnaryInPlaceInsn("IN_RC.u32", 0x005u, DataType.u32) { it + 1u }
+            +UnaryInPlaceInsn("IN_RC.i64",  0x006u, DataType.i64) { it + 1 }
+            +UnaryInPlaceInsn("IN_RC.u64", 0x007u, DataType.u64) { it + 1u }
         }
 
         private fun decrement() {
             // decrement
-            +UnaryInPlaceInsn("DEC.i8",  0x010u, DataType.i8) { (it + 1).i8 }
-            +UnaryInPlaceInsn("DEC.u8", 0x011u, DataType.u8) { (it + 1u).u8 }
-            +UnaryInPlaceInsn("DEC.i16",  0x012u, DataType.i16) { (it + 1).i16 }
-            +UnaryInPlaceInsn("DEC.u16", 0x013u, DataType.u16) { (it + 1u).u16 }
-            +UnaryInPlaceInsn("DEC.i32",  0x014u, DataType.i32) { it - 1 }
-            +UnaryInPlaceInsn("DEC.u32", 0x015u, DataType.u32) { it - 1u }
-            +UnaryInPlaceInsn("DEC.i64",  0x016u, DataType.i64) { it - 1 }
-            +UnaryInPlaceInsn("DEC.u64", 0x017u, DataType.u64) { it - 1u }
+            +UnaryInPlaceInsn("DE_RC.i8",  0x010u, DataType.i8) { (it + 1).i8 }
+            +UnaryInPlaceInsn("DE_RC.u8", 0x011u, DataType.u8) { (it + 1u).u8 }
+            +UnaryInPlaceInsn("DE_RC.i16",  0x012u, DataType.i16) { (it + 1).i16 }
+            +UnaryInPlaceInsn("DE_RC.u16", 0x013u, DataType.u16) { (it + 1u).u16 }
+            +UnaryInPlaceInsn("DE_RC.i32",  0x014u, DataType.i32) { it - 1 }
+            +UnaryInPlaceInsn("DE_RC.u32", 0x015u, DataType.u32) { it - 1u }
+            +UnaryInPlaceInsn("DE_RC.i64",  0x016u, DataType.i64) { it - 1 }
+            +UnaryInPlaceInsn("DE_RC.u64", 0x017u, DataType.u64) { it - 1u }
         }
 
         private fun add() {
@@ -109,16 +110,16 @@ abstract class ArithmeticInsn(name: String, qualifier: UShort, width: UInt): Ins
             +BinaryInsn("ADD.f64",  0x029u, DataType.f64) { l, r -> l + r }
 
             // add register and constant
-            +BinaryRightConstInsn("ADDC.i8",  0x030u, DataType.i8) { l, r -> (l + r).i8 }
-            +BinaryRightConstInsn("ADDC.u8", 0x031u, DataType.u8) { l, r -> (l + r).u8 }
-            +BinaryRightConstInsn("ADDC.i16",  0x032u, DataType.i16) { l, r -> (l + r).i16 }
-            +BinaryRightConstInsn("ADDC.u16", 0x033u, DataType.u16) { l, r -> (l + r).u16 }
-            +BinaryRightConstInsn("ADDC.i32",  0x034u, DataType.i32) { l, r -> l + r }
-            +BinaryRightConstInsn("ADDC.u32", 0x035u, DataType.u32) { l, r -> l + r }
-            +BinaryRightConstInsn("ADDC.i64",  0x036u, DataType.i64) { l, r -> l + r }
-            +BinaryRightConstInsn("ADDC.u64", 0x037u, DataType.u64) { l, r -> l + r }
-            +BinaryRightConstInsn("ADDC.f32",  0x038u, DataType.f32) { l, r -> l + r }
-            +BinaryRightConstInsn("ADDC.f64",  0x039u, DataType.f64) { l, r -> l + r }
+            +BinaryRightConstInsn("ADD_RC.i8",  0x030u, DataType.i8) { l, r -> (l + r).i8 }
+            +BinaryRightConstInsn("ADD_RC.u8", 0x031u, DataType.u8) { l, r -> (l + r).u8 }
+            +BinaryRightConstInsn("ADD_RC.i16",  0x032u, DataType.i16) { l, r -> (l + r).i16 }
+            +BinaryRightConstInsn("ADD_RC.u16", 0x033u, DataType.u16) { l, r -> (l + r).u16 }
+            +BinaryRightConstInsn("ADD_RC.i32",  0x034u, DataType.i32) { l, r -> l + r }
+            +BinaryRightConstInsn("ADD_RC.u32", 0x035u, DataType.u32) { l, r -> l + r }
+            +BinaryRightConstInsn("ADD_RC.i64",  0x036u, DataType.i64) { l, r -> l + r }
+            +BinaryRightConstInsn("ADD_RC.u64", 0x037u, DataType.u64) { l, r -> l + r }
+            +BinaryRightConstInsn("ADD_RC.f32",  0x038u, DataType.f32) { l, r -> l + r }
+            +BinaryRightConstInsn("ADD_RC.f64",  0x039u, DataType.f64) { l, r -> l + r }
         }
 
         /**
@@ -138,16 +139,16 @@ abstract class ArithmeticInsn(name: String, qualifier: UShort, width: UInt): Ins
             +BinaryInsn("SUB.f64",  0x049u, DataType.f64) { l, r -> l - r }
 
             // subtract register and right constant
-            +BinaryRightConstInsn("SUBC.i8",  0x050u, DataType.i8) { l, r -> (l - r).i8 }
-            +BinaryRightConstInsn("SUBC.u8", 0x051u, DataType.u8) { l, r -> (l - r).u8 }
-            +BinaryRightConstInsn("SUBC.i16",  0x052u, DataType.i16) { l, r -> (l - r).i16 }
-            +BinaryRightConstInsn("SUBC.u16", 0x053u, DataType.u16) { l, r -> (l - r).u16 }
-            +BinaryRightConstInsn("SUBC.i32",  0x054u, DataType.i32) { l, r -> l - r }
-            +BinaryRightConstInsn("SUBC.u32", 0x055u, DataType.u32) { l, r -> l - r }
-            +BinaryRightConstInsn("SUBC.i64",  0x056u, DataType.i64) { l, r -> l - r }
-            +BinaryRightConstInsn("SUBC.u64", 0x057u, DataType.u64) { l, r -> l - r }
-            +BinaryRightConstInsn("SUBC.f32",  0x058u, DataType.f32) { l, r -> l - r }
-            +BinaryRightConstInsn("SUBC.f64",  0x059u, DataType.f64) { l, r -> l - r }
+            +BinaryRightConstInsn("SUB_RC.i8",  0x050u, DataType.i8) { l, r -> (l - r).i8 }
+            +BinaryRightConstInsn("SUB_RC.u8", 0x051u, DataType.u8) { l, r -> (l - r).u8 }
+            +BinaryRightConstInsn("SUB_RC.i16",  0x052u, DataType.i16) { l, r -> (l - r).i16 }
+            +BinaryRightConstInsn("SUB_RC.u16", 0x053u, DataType.u16) { l, r -> (l - r).u16 }
+            +BinaryRightConstInsn("SUB_RC.i32",  0x054u, DataType.i32) { l, r -> l - r }
+            +BinaryRightConstInsn("SUB_RC.u32", 0x055u, DataType.u32) { l, r -> l - r }
+            +BinaryRightConstInsn("SUB_RC.i64",  0x056u, DataType.i64) { l, r -> l - r }
+            +BinaryRightConstInsn("SUB_RC.u64", 0x057u, DataType.u64) { l, r -> l - r }
+            +BinaryRightConstInsn("SUB_RC.f32",  0x058u, DataType.f32) { l, r -> l - r }
+            +BinaryRightConstInsn("SUB_RC.f64",  0x059u, DataType.f64) { l, r -> l - r }
 
             // subtract register and left constant
             +BinaryLeftConstInsn("SUB_CR.i8",  0x060u, DataType.i8) { l, r -> (l - r).i8 }
@@ -176,16 +177,16 @@ abstract class ArithmeticInsn(name: String, qualifier: UShort, width: UInt): Ins
             +BinaryInsn("MUL.f64",  0x079u, DataType.f64) { l, r -> l * r }
 
             // multiply register and right constant
-            +BinaryRightConstInsn("MULC.i8",  0x080u, DataType.i8) { l, r -> (l * r).i8 }
-            +BinaryRightConstInsn("MULC.u8", 0x081u, DataType.u8) { l, r -> (l * r).u8 }
-            +BinaryRightConstInsn("MULC.i16",  0x082u, DataType.i16) { l, r -> (l * r).i16 }
-            +BinaryRightConstInsn("MULC.u16", 0x083u, DataType.u16) { l, r -> (l * r).u16 }
-            +BinaryRightConstInsn("MULC.i32",  0x084u, DataType.i32) { l, r -> l * r }
-            +BinaryRightConstInsn("MULC.u32", 0x085u, DataType.u32) { l, r -> l * r }
-            +BinaryRightConstInsn("MULC.i64",  0x086u, DataType.i64) { l, r -> l * r }
-            +BinaryRightConstInsn("MULC.u64", 0x087u, DataType.u64) { l, r -> l * r }
-            +BinaryRightConstInsn("MULC.f32",  0x088u, DataType.f32) { l, r -> l * r }
-            +BinaryRightConstInsn("MULC.f64",  0x089u, DataType.f64) { l, r -> l * r }
+            +BinaryRightConstInsn("MUL_RC.i8",  0x080u, DataType.i8) { l, r -> (l * r).i8 }
+            +BinaryRightConstInsn("MUL_RC.u8", 0x081u, DataType.u8) { l, r -> (l * r).u8 }
+            +BinaryRightConstInsn("MUL_RC.i16",  0x082u, DataType.i16) { l, r -> (l * r).i16 }
+            +BinaryRightConstInsn("MUL_RC.u16", 0x083u, DataType.u16) { l, r -> (l * r).u16 }
+            +BinaryRightConstInsn("MUL_RC.i32",  0x084u, DataType.i32) { l, r -> l * r }
+            +BinaryRightConstInsn("MUL_RC.u32", 0x085u, DataType.u32) { l, r -> l * r }
+            +BinaryRightConstInsn("MUL_RC.i64",  0x086u, DataType.i64) { l, r -> l * r }
+            +BinaryRightConstInsn("MUL_RC.u64", 0x087u, DataType.u64) { l, r -> l * r }
+            +BinaryRightConstInsn("MUL_RC.f32",  0x088u, DataType.f32) { l, r -> l * r }
+            +BinaryRightConstInsn("MUL_RC.f64",  0x089u, DataType.f64) { l, r -> l * r }
         }
 
         fun divide() {
@@ -202,16 +203,16 @@ abstract class ArithmeticInsn(name: String, qualifier: UShort, width: UInt): Ins
             +BinaryInsn("DIV.f64",  0x099u, DataType.f64) { l, r -> l / r }
 
             // subtract register and right constant
-            +BinaryRightConstInsn("DIVC.i8",  0x0a0u, DataType.i8) { l, r -> (l / r).i8 }
-            +BinaryRightConstInsn("DIVC.u8", 0x0a1u, DataType.u8) { l, r -> (l / r).u8 }
-            +BinaryRightConstInsn("DIVC.i16",  0x0a2u, DataType.i16) { l, r -> (l / r).i16 }
-            +BinaryRightConstInsn("DIVC.u16", 0x0a3u, DataType.u16) { l, r -> (l / r).u16 }
-            +BinaryRightConstInsn("DIVC.i32",  0x0a4u, DataType.i32) { l, r -> l / r }
-            +BinaryRightConstInsn("DIVC.u32", 0x0a5u, DataType.u32) { l, r -> l / r }
-            +BinaryRightConstInsn("DIVC.i64",  0x0a6u, DataType.i64) { l, r -> l / r }
-            +BinaryRightConstInsn("DIVC.u64", 0x0a7u, DataType.u64) { l, r -> l / r }
-            +BinaryRightConstInsn("DIVC.f32",  0x0a8u, DataType.f32) { l, r -> l / r }
-            +BinaryRightConstInsn("DIVC.f64",  0x0a9u, DataType.f64) { l, r -> l / r }
+            +BinaryRightConstInsn("DIV_RC.i8",  0x0a0u, DataType.i8) { l, r -> (l / r).i8 }
+            +BinaryRightConstInsn("DIV_RC.u8", 0x0a1u, DataType.u8) { l, r -> (l / r).u8 }
+            +BinaryRightConstInsn("DIV_RC.i16",  0x0a2u, DataType.i16) { l, r -> (l / r).i16 }
+            +BinaryRightConstInsn("DIV_RC.u16", 0x0a3u, DataType.u16) { l, r -> (l / r).u16 }
+            +BinaryRightConstInsn("DIV_RC.i32",  0x0a4u, DataType.i32) { l, r -> l / r }
+            +BinaryRightConstInsn("DIV_RC.u32", 0x0a5u, DataType.u32) { l, r -> l / r }
+            +BinaryRightConstInsn("DIV_RC.i64",  0x0a6u, DataType.i64) { l, r -> l / r }
+            +BinaryRightConstInsn("DIV_RC.u64", 0x0a7u, DataType.u64) { l, r -> l / r }
+            +BinaryRightConstInsn("DIV_RC.f32",  0x0a8u, DataType.f32) { l, r -> l / r }
+            +BinaryRightConstInsn("DIV_RC.f64",  0x0a9u, DataType.f64) { l, r -> l / r }
 
             // subtract register and left constant
             +BinaryLeftConstInsn("DIV_CR.i8",  0x0b0u, DataType.i8) { l, r -> (l / r).i8 }
@@ -241,16 +242,16 @@ abstract class ArithmeticInsn(name: String, qualifier: UShort, width: UInt): Ins
             +BinaryInsn("MOD.f64",  0x0c9u, DataType.f64) { l, r -> l % r }
 
             // subtract register and right constant
-            +BinaryRightConstInsn("MODC.i8",  0x0d0u, DataType.i8) { l, r -> (l % r).i8 }
-            +BinaryRightConstInsn("MODC.u8", 0x0d1u, DataType.u8) { l, r -> (l % r).u8 }
-            +BinaryRightConstInsn("MODC.i16",  0x0d2u, DataType.i16) { l, r -> (l % r).i16 }
-            +BinaryRightConstInsn("MODC.u16", 0x0d3u, DataType.u16) { l, r -> (l % r).u16 }
-            +BinaryRightConstInsn("MODC.i32",  0x0d4u, DataType.i32) { l, r -> l % r }
-            +BinaryRightConstInsn("MODC.u32", 0x0d5u, DataType.u32) { l, r -> l % r }
-            +BinaryRightConstInsn("MODC.i64",  0x0d6u, DataType.i64) { l, r -> l % r }
-            +BinaryRightConstInsn("MODC.u64", 0x0d7u, DataType.u64) { l, r -> l % r }
-            +BinaryRightConstInsn("MODC.f32",  0x0d8u, DataType.f32) { l, r -> l % r }
-            +BinaryRightConstInsn("MODC.f64",  0x0d9u, DataType.f64) { l, r -> l % r }
+            +BinaryRightConstInsn("MOD_RC.i8",  0x0d0u, DataType.i8) { l, r -> (l % r).i8 }
+            +BinaryRightConstInsn("MOD_RC.u8", 0x0d1u, DataType.u8) { l, r -> (l % r).u8 }
+            +BinaryRightConstInsn("MOD_RC.i16",  0x0d2u, DataType.i16) { l, r -> (l % r).i16 }
+            +BinaryRightConstInsn("MOD_RC.u16", 0x0d3u, DataType.u16) { l, r -> (l % r).u16 }
+            +BinaryRightConstInsn("MOD_RC.i32",  0x0d4u, DataType.i32) { l, r -> l % r }
+            +BinaryRightConstInsn("MOD_RC.u32", 0x0d5u, DataType.u32) { l, r -> l % r }
+            +BinaryRightConstInsn("MOD_RC.i64",  0x0d6u, DataType.i64) { l, r -> l % r }
+            +BinaryRightConstInsn("MOD_RC.u64", 0x0d7u, DataType.u64) { l, r -> l % r }
+            +BinaryRightConstInsn("MOD_RC.f32",  0x0d8u, DataType.f32) { l, r -> l % r }
+            +BinaryRightConstInsn("MOD_RC.f64",  0x0d9u, DataType.f64) { l, r -> l % r }
 
             // subtract register and left constant
             +BinaryLeftConstInsn("MOD_CR.i8",  0x0e0u, DataType.i8) { l, r -> (l % r).i8 }
