@@ -17,26 +17,7 @@ object InstructionRegistry {
         insn(Opcodes.nop) { _, _ -> }
     }
 
-    val mov = +factory("mov") { _, tokenizer ->
-        val dstToken = tokenizer.pop()
-        val srcToken = tokenizer.pop()
-
-        val dst = DataType.reg.parse(dstToken.value)!!
-        val srcReg = DataType.reg.parse(srcToken.value)
-        val srcImm = DataType.u32.parse(srcToken.value)
-
-        when {
-            srcImm != null -> insn(Opcodes.mov_imm) { buffer, _ ->
-                buffer.putUByte(dst)
-                buffer.putUInt(srcImm)
-            }
-            srcReg != null -> insn(Opcodes.mov_r) { buffer, _ ->
-                buffer.putUByte(dst)
-                buffer.putUByte(srcReg)
-            }
-            else -> error("Unable to parse source `${srcToken.value}`")
-        }
-    }
+    val mov = +factory("mov", Opcodes.mov_imm, Opcodes.mov_r)
 
     val add = +factory("add", Opcodes.add_imm, Opcodes.add_r)
 
@@ -74,6 +55,7 @@ object InstructionRegistry {
                     if(values.size == opcode.payload.size) { // all the elements passed the non-null test
                         return object : Insn(opcode) {
                             override fun push(buffer: ByteBuffer, parser: Parser) {
+                                buffer.putUShort(opcode.opcode)
                                 opcode.payload.zip(values) { argument, value ->
                                     @Suppress("UNCHECKED_CAST")
                                     (argument as DataType<Any>).put(buffer, value)

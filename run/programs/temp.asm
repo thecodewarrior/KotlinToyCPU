@@ -1,7 +1,7 @@
 restart:
     mov r0, #0x10
     mov r1, #0x03
-    mov r1, r2
+    add r2, r0, r1
 ;start:
     ;add r0, r1, r0
     ;cmp r0, 0xf0

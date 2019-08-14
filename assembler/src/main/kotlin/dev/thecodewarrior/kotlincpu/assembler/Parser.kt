@@ -27,8 +27,10 @@ class Parser(val file: String, val text: String) {
                 labels.add(tokens.pop().value.removeSuffix(":"))
             }
 
-            if(tokens.peek().testLine())
+            if(tokens.peek().testLine()) {
+                tokens.pop()
                 continue
+            }
 
             val condition: String? =
                 if(tokens.peek().value.endsWith("?")) {

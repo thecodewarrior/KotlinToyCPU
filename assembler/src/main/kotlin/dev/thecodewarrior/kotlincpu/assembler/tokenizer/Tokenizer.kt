@@ -9,10 +9,10 @@ class Tokenizer(data: String) {
     var index: Int
         get() = _index
         set(value) {
-            when {
-                _index < 0 -> _index = 0
-                value > tokens.size -> _index = tokens.size
-                else -> _index = index
+            _index = when {
+                value < 0 -> 0
+                value > tokens.size -> tokens.size
+                else -> value
             }
         }
 
