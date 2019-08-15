@@ -2,7 +2,7 @@ package dev.thecodewarrior.kotlincpu.assembler.instructions
 
 import dev.thecodewarrior.kotlincpu.assembler.Parser
 import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Tokenizer
-import dev.thecodewarrior.kotlincpu.assembler.util.putUShort
+import dev.thecodewarrior.kotlincpu.common.Argument
 import dev.thecodewarrior.kotlincpu.common.DataType
 import dev.thecodewarrior.kotlincpu.common.Insn
 import dev.thecodewarrior.kotlincpu.common.Instructions
@@ -57,20 +57,20 @@ object InstructionRegistry {
                 for(opcode in opcodes) {
                     tokenizer.index = start
                     val values = opcode.payload.mapNotNull {
-                        if(tokenizer.eof()) null else it.parse(tokenizer.pop().value)
+                        if(tokenizer.eof()) null else it.type.parse(tokenizer.pop().value)
                     }
                     if(values.size == opcode.payload.size) { // all the elements passed the non-null test
                         return object : Instruction(opcode) {
                             override fun push(buffer: ByteBuffer, parser: Parser) {
                                 opcode.payload.zip(values) { argument, _value ->
-                                    val value = if(argument is DataType.label) {
+                                    val value = if(argument.type == DataType.label) {
                                         val labelInsn = context.findLabel(_value as String).instruction!!
                                         labelInsn.address
                                     } else {
                                         _value
                                     }
                                     @Suppress("UNCHECKED_CAST")
-                                    (argument as DataType<Any>).put(buffer, value)
+                                    (argument as Argument<Any>).type.put(buffer, value)
                                 }
                             }
                         }

@@ -1,10 +1,10 @@
 package dev.thecodewarrior.kotlincpu.common
 
-class Insn(val name: String, val opcode: UShort, vararg payload: DataType<*>) {
-    val payload: List<DataType<*>> = mutableListOf(*payload)
+class Insn(val name: String, val opcode: UShort, vararg payload: Argument<*>) {
+    val payload: List<Argument<*>> = mutableListOf(*payload)
 
     val payloadWidth: Int
-        get() = payload.sumBy { it.width }
+        get() = payload.sumBy { it.type.width }
 
     fun encoded(condition: Condition): UShort {
         val cmpBits = condition.ordinal shl 16 - Condition.CONDITION_BITS
@@ -13,6 +13,24 @@ class Insn(val name: String, val opcode: UShort, vararg payload: DataType<*>) {
 
     override fun toString(): String {
         return "Insn(name='$name', opcode=$opcode, payload=$payload)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Insn) return false
+
+        if (name != other.name) return false
+        if (opcode != other.opcode) return false
+        if (payload != other.payload) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + opcode.hashCode()
+        result = 31 * result + payload.hashCode()
+        return result
     }
 
     companion object {

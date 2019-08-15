@@ -183,14 +183,14 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
         var addr = cpu.pc.toInt() + 2
         val payload = insn?.payload?.joinToString("") { arg ->
             val s = "\n        $arg: " +
-                (0 until arg.width)
+                (0 until arg.type.width)
                     .map { i ->
                         cpu.programBuffer.get(addr + i).toString(16).padStart(2, '0')
                     }
                     .chunked(2)
                     .map { it.joinToString("") }
                     .joinToString(" ")
-            addr += arg.width
+            addr += arg.type.width
             return@joinToString s
         } ?: "???"
 

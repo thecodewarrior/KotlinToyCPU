@@ -1,5 +1,3 @@
-@file:Suppress("ClassName")
-
 package dev.thecodewarrior.kotlincpu.common
 
 import dev.thecodewarrior.kotlincpu.common.util.getUByte
@@ -21,36 +19,16 @@ import dev.thecodewarrior.kotlincpu.common.util.toUShortDetectRadix
 import java.nio.ByteBuffer
 import java.util.Locale
 
-sealed class DataType<T: Any>(val name: String, val width: Int) {
+sealed class DataType<T: Any>(val width: Int) {
     abstract fun put(buffer: ByteBuffer, value: T)
     abstract fun parse(value: String): T?
     abstract fun read(buffer: ByteBuffer): T
 
     override fun toString(): String {
-        return "${this.javaClass.simpleName}('$name')"
+        return this.javaClass.simpleName
     }
 
-    class dynamic(name: String): DataType<Any>(name, 0) {
-        override fun put(buffer: ByteBuffer, value: Any) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
-
-        override fun parse(value: String): Any? {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
-
-        override fun read(buffer: ByteBuffer): Any {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
-
-        companion object {
-            fun parse(value: String): Any? {
-                TODO("not implemented")
-            }
-        }
-    }
-
-    open class reg(name: String): DataType<UByte>(name, 1) {
+    object reg: DataType<UByte>(1) {
         override fun put(buffer: ByteBuffer, value: UByte) {
             buffer.putUByte(value)
         }
@@ -63,15 +41,13 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
             return buffer.getUByte()
         }
 
-        companion object: reg("") {
-            val registers: Map<String, UByte> = mapOf(
-                *(0 .. 15).map { "r$it" to it }.toTypedArray(),
-                "pc" to 0xf0
-            ).mapValues { it.value.toUByte() }
-        }
+        private val registers: Map<String, UByte> = mapOf(
+            *(0 .. 15).map { "r$it" to it }.toTypedArray(),
+            "pc" to 0xf0
+        ).mapValues { it.value.toUByte() }
     }
 
-    open class label(name: String): DataType<Any>(name, 4) {
+    object label: DataType<Any>(4) {
         override fun put(buffer: ByteBuffer, value: Any) {
             value as Int
             buffer.putUInt(value.toUInt())
@@ -85,12 +61,10 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
             return buffer.getUInt()
         }
 
-        companion object: label("") {
-            val pattern = "^[a-zA-Z][a-zA-Z0-9]*$".toRegex()
-        }
+        private val pattern = "^[a-zA-Z][a-zA-Z0-9]*$".toRegex()
     }
 
-    open class u8(name: String): DataType<UByte>(name, 1) {
+    object u8: DataType<UByte>(1) {
         override fun put(buffer: ByteBuffer, value: UByte) {
             buffer.putUByte(value)
         }
@@ -105,10 +79,9 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
         override fun read(buffer: ByteBuffer): UByte {
             return buffer.getUByte()
         }
-        companion object: u8("")
     }
 
-    open class i8(name: String): DataType<Byte>(name, 1) {
+    object i8: DataType<Byte>(1) {
         override fun put(buffer: ByteBuffer, value: Byte) {
             buffer.put(value)
         }
@@ -123,11 +96,9 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
         override fun read(buffer: ByteBuffer): Byte {
             return buffer.get()
         }
-
-        companion object: i8("")
     }
 
-    open class u16(name: String): DataType<UShort>(name, 2) {
+    object u16: DataType<UShort>(2) {
         override fun put(buffer: ByteBuffer, value: UShort) {
             buffer.putUShort(value)
         }
@@ -142,11 +113,9 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
         override fun read(buffer: ByteBuffer): UShort {
             return buffer.getUShort()
         }
-
-        companion object: u16("")
     }
 
-    open class i16(name: String): DataType<Short>(name, 2) {
+    object i16: DataType<Short>(2) {
         override fun put(buffer: ByteBuffer, value: Short) {
             buffer.putShort(value)
         }
@@ -161,11 +130,9 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
         override fun read(buffer: ByteBuffer): Short {
             return buffer.getShort()
         }
-
-        companion object: i16("")
     }
 
-    open class u32(name: String): DataType<UInt>(name, 4) {
+    object u32: DataType<UInt>(4) {
         override fun put(buffer: ByteBuffer, value: UInt) {
             buffer.putUInt(value)
         }
@@ -180,11 +147,9 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
         override fun read(buffer: ByteBuffer): UInt {
             return buffer.getUInt()
         }
-
-        companion object: u32("")
     }
 
-    open class i32(name: String): DataType<Int>(name, 4) {
+    object i32: DataType<Int>(4) {
         override fun put(buffer: ByteBuffer, value: Int) {
             buffer.putInt(value as Int)
         }
@@ -199,11 +164,9 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
         override fun read(buffer: ByteBuffer): Int {
             return buffer.getInt()
         }
-
-        companion object: i32("")
     }
 
-    open class u64(name: String): DataType<ULong>(name, 8) {
+    object u64: DataType<ULong>(8) {
         override fun put(buffer: ByteBuffer, value: ULong) {
             buffer.putULong(value)
         }
@@ -218,11 +181,9 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
         override fun read(buffer: ByteBuffer): ULong {
             return buffer.getULong()
         }
-
-        companion object: u64("")
     }
 
-    open class i64(name: String): DataType<Long>(name, 8) {
+    object i64: DataType<Long>(8) {
         override fun put(buffer: ByteBuffer, value: Long) {
             buffer.putLong(value as Long)
         }
@@ -237,11 +198,9 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
         override fun read(buffer: ByteBuffer): Long {
             return buffer.getLong()
         }
-
-        companion object: i64("")
     }
 
-    open class f32(name: String): DataType<Float>(name, 4) {
+    object f32: DataType<Float>(4) {
         override fun put(buffer: ByteBuffer, value: Float) {
             buffer.putFloat(value as Float)
         }
@@ -256,11 +215,9 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
         override fun read(buffer: ByteBuffer): Float {
             return buffer.getFloat()
         }
-
-        companion object: f32("")
     }
 
-    open class f64(name: String): DataType<Double>(name, 8) {
+    object f64: DataType<Double>(8) {
         override fun put(buffer: ByteBuffer, value: Double) {
             buffer.putDouble(value)
         }
@@ -275,7 +232,5 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
         override fun read(buffer: ByteBuffer): Double {
             return buffer.getDouble()
         }
-
-        companion object: f64("")
     }
 }
