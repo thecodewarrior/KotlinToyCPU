@@ -6,6 +6,7 @@ import java.awt.Container
 import javax.swing.GroupLayout
 import javax.swing.JComponent
 import javax.swing.LayoutStyle
+import javax.swing.SwingConstants
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -163,6 +164,30 @@ open class GroupDSL<T: GroupLayout.Group>(val layout: GroupLayout, val group: T)
         val group = layout.createBaselineGroup(true, false)
         ParallelGroupDSL(layout, group).config()
         return group
+    }
+
+    fun linkSize(vararg components: Component) {
+        layout.linkSize(*components)
+    }
+
+    fun linkWidth(vararg components: Component) {
+        layout.linkSize(SwingConstants.HORIZONTAL, *components)
+    }
+
+    fun linkHeight(vararg components: Component) {
+        layout.linkSize(SwingConstants.VERTICAL, *components)
+    }
+
+    infix fun Component.linkSize(other: Component) {
+        linkSize(this, other)
+    }
+
+    infix fun Component.linkWidth(other: Component) {
+        linkWidth(this, other)
+    }
+
+    infix fun Component.linkHeight(other: Component) {
+        linkHeight(this, other)
     }
 
     val leading = GroupLayout.Alignment.LEADING
