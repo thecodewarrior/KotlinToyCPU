@@ -25,14 +25,14 @@ object Main : CoroutineScope by CoroutineScope(Dispatchers.Default) {
 
     fun reset() {
         computer = Computer()
-        cpuStatus.cpu = computer.cpu
 
         computer.start()
         computer.memory.buffer.also { buf ->
             buf.rewind()
             buf.put(program.readBytes())
         }
-        computer.updateUI()
+
+        cpuStatus.cpu = computer.cpu
     }
 }
 

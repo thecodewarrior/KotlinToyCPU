@@ -24,4 +24,7 @@ dependencies {
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "1.8"
-compileKotlin.kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
+compileKotlin.kotlinOptions.freeCompilerArgs = listOf(
+    "-Xuse-experimental=kotlin.Experimental",
+    "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
+)

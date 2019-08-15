@@ -7,6 +7,7 @@ import dev.thecodewarrior.kotlincpu.computer.cpu.CPU
 import dev.thecodewarrior.kotlincpu.computer.util.dim
 import dev.thecodewarrior.kotlincpu.computer.util.extensions.getUShort
 import dev.thecodewarrior.kotlincpu.computer.util.extensions.rem
+import dev.thecodewarrior.kotlincpu.computer.util.rem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,6 +15,7 @@ import java.awt.BorderLayout
 import java.awt.Font
 import javax.swing.AbstractListModel
 import javax.swing.BoxLayout
+import javax.swing.GroupLayout
 import javax.swing.JButton
 import javax.swing.JFrame
 import javax.swing.JList
@@ -43,22 +45,21 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
     init {
         title = "CPU"
         defaultCloseOperation = EXIT_ON_CLOSE
-        size = dim(650, 350)
+        size = dim(350, 350)
         setLocationRelativeTo(null)
     }
 
-    val topRow = JPanel() %
-        { row ->
-            row.layout = BoxLayout(row, BoxLayout.LINE_AXIS)
-            contentPane.add(row, BorderLayout.PAGE_START)
-        }
+    val layout = GroupLayout(contentPane)
+    init {
+        contentPane.layout = layout
+    }
 
     val resetButton = JButton("Reset") %
         { button ->
             button.addActionListener {
                 Main.reset()
             }
-            topRow.add(button)
+            contentPane.add(button)
         }
 
     val stepButton = JButton("Step") %
@@ -66,7 +67,7 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
             button.addActionListener {
                 cpu?.computer?.step()
             }
-            topRow.add(button)
+            contentPane.add(button)
         }
 
     val clockModel = SpinnerNumberModel(1, 1, 32, 1)
@@ -75,7 +76,7 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
             spinner.addChangeListener {
                 cpu?.computer?.clockSpeed = clockModel.number.toInt()
             }
-            topRow.add(spinner)
+            contentPane.add(spinner)
         }
 
     val clockButton = JToggleButton("Clock") %
@@ -83,7 +84,7 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
             button.addActionListener {
                 cpu?.computer?.running = button.isSelected
             }
-            topRow.add(button)
+            contentPane.add(button)
         }
 
     val instruction = JTextArea() %
@@ -103,6 +104,37 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
         }
 
     init {
+
+        layout % {
+            autoCreateGaps = true
+            autoCreateContainerGaps = true
+
+            horizontal = parallel {
+                +sequential {
+                    +resetButton
+                    +stepButton
+                    +clockSpeed
+                    +clockButton
+                }
+                +sequential {
+                    +instruction
+                    +registersList
+                }
+            }
+            vertical = sequential {
+                +baseline {
+                    +resetButton
+                    +stepButton
+                    +clockSpeed
+                    +clockButton
+                }
+                +parallel {
+                    +instruction
+                    +registersList
+                }
+            }
+        }
+
         updateUI()
     }
 
@@ -132,7 +164,9 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
     }
 
     private fun updateUI(cpu: CPU) {
-        clockButton.isEnabled = false
+        clockButton.isEnabled = true
+        stepButton.isEnabled = true
+        clockSpeed.isEnabled = true
 
         clockButton.isSelected = cpu.computer.running
 
