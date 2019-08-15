@@ -1,6 +1,6 @@
 package dev.thecodewarrior.kotlincpu.common
 
-class Insn(val name: String, val opcode: UShort, val typed: Boolean, vararg payload: DataType<*>) {
+class Insn(val name: String, val opcode: UShort, vararg payload: DataType<*>) {
     val payload: List<DataType<*>> = mutableListOf(*payload)
 
     val payloadWidth: Int
@@ -12,7 +12,7 @@ class Insn(val name: String, val opcode: UShort, val typed: Boolean, vararg payl
     }
 
     override fun toString(): String {
-        return "Insn(name='$name', opcode=$opcode, typed=$typed, payload=$payload)"
+        return "Insn(name='$name', opcode=$opcode, payload=$payload)"
     }
 
     companion object {

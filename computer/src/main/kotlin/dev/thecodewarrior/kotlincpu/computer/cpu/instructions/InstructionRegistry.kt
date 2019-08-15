@@ -69,6 +69,86 @@ object InstructionRegistry {
         cpu.registers[dst] = cpu.registers[left] + cpu.registers[right]
     }
 
+    val sub_imm = +insn(Instructions.sub_imm) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.u32.read(buffer)
+        cpu.registers[dst] = cpu.registers[left] - right
+    }
+    val sub_r = +insn(Instructions.sub_r) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.reg.read(buffer)
+        cpu.registers[dst] = cpu.registers[left] - cpu.registers[right]
+    }
+
+    val mul_imm = +insn(Instructions.mul_imm) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.u32.read(buffer)
+        cpu.registers[dst] = cpu.registers[left] * right
+    }
+    val mul_r = +insn(Instructions.mul_r) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.reg.read(buffer)
+        cpu.registers[dst] = cpu.registers[left] * cpu.registers[right]
+    }
+
+    val div_imm = +insn(Instructions.div_imm) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.u32.read(buffer)
+        cpu.registers[dst] = cpu.registers[left] / right
+    }
+    val div_r = +insn(Instructions.div_r) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.reg.read(buffer)
+        cpu.registers[dst] = cpu.registers[left] / cpu.registers[right]
+    }
+
+    val sdiv_imm = +insn(Instructions.sdiv_imm) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.u32.read(buffer)
+        cpu.registers[dst] = (cpu.registers[left].toInt() / right.toInt()).toUInt()
+    }
+    val sdiv_r = +insn(Instructions.sdiv_r) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.reg.read(buffer)
+        cpu.registers[dst] = (cpu.registers[left].toInt() / cpu.registers[right].toInt()).toUInt()
+    }
+
+
+    val mod_imm = +insn(Instructions.mod_imm) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.u32.read(buffer)
+        cpu.registers[dst] = cpu.registers[left] % right
+    }
+    val mod_r = +insn(Instructions.mod_r) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.reg.read(buffer)
+        cpu.registers[dst] = cpu.registers[left] % cpu.registers[right]
+    }
+
+    val smod_imm = +insn(Instructions.smod_imm) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.u32.read(buffer)
+        cpu.registers[dst] = (cpu.registers[left].toInt() % right.toInt()).toUInt()
+    }
+    val smod_r = +insn(Instructions.smod_r) { cpu, buffer ->
+        val dst = DataType.reg.read(buffer)
+        val left = DataType.reg.read(buffer)
+        val right = DataType.reg.read(buffer)
+        cpu.registers[dst] = (cpu.registers[left].toInt() % cpu.registers[right].toInt()).toUInt()
+    }
+
+
     private val instructionMap = instructions.associateBy { it.insn }
     fun findInsn(opcode: Insn): Instruction = instructionMap.getValue(opcode)
 

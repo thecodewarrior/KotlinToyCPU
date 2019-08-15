@@ -16,9 +16,16 @@ object InstructionRegistry {
     }
 
     val mov = +factory("mov", Instructions.mov_imm, Instructions.mov_r)
-    val add = +factory("add", Instructions.add_imm, Instructions.add_r)
     val cmp = +factory("cmp", Instructions.cmp_imm, Instructions.cmp_r)
     val jmp = +factory("jmp", Instructions.jmp_imm, Instructions.jmp_r, Instructions.pseudo_jmp_label)
+
+    val add = +factory("add", Instructions.add_imm, Instructions.add_r)
+    val sub = +factory("sub", Instructions.sub_imm, Instructions.sub_r)
+    val mul = +factory("mul", Instructions.mul_imm, Instructions.mul_r)
+    val div = +factory("div", Instructions.div_imm, Instructions.div_r)
+    val sdiv = +factory("sdiv", Instructions.sdiv_imm, Instructions.sdiv_r)
+    val mod = +factory("mod", Instructions.mod_imm, Instructions.mod_r)
+    val smod = +factory("smod", Instructions.smod_imm, Instructions.smod_r)
 
     private operator fun InsnFactory.unaryPlus(): InsnFactory {
         factories.add(this)
