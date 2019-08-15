@@ -15,12 +15,11 @@ object Main : CoroutineScope by CoroutineScope(Dispatchers.Default) {
 
     var computer = Computer()
 
-    val cpuStatus = CpuStatusFrame(computer.cpu)
+    val cpuStatus = CpuStatusFrame()
 
     init {
-        launch {
-            computer.start()
-        }
+        cpuStatus.cpu = computer.cpu
+        computer.start()
         cpuStatus.isVisible = true
     }
 
@@ -33,6 +32,7 @@ fun main(args: Array<String>) {
         buf.rewind()
         buf.put(File(args[0]).readBytes())
     }
+    Main.computer.updateUI()
 }
 
 

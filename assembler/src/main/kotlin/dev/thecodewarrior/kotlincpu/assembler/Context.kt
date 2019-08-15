@@ -1,6 +1,6 @@
 package dev.thecodewarrior.kotlincpu.assembler
 
-import dev.thecodewarrior.kotlincpu.assembler.instructions.Insn
+import dev.thecodewarrior.kotlincpu.assembler.instructions.Instruction
 
 class Context(val parent: Context?) {
     val labels = mutableListOf<Label>()
@@ -9,4 +9,4 @@ class Context(val parent: Context?) {
     }
 }
 
-class Label(val name: String, var instruction: Insn? = null)
+class Label(val name: String, var instruction: Instruction? = null)

@@ -26,6 +26,10 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
     abstract fun parse(value: String): T?
     abstract fun read(buffer: ByteBuffer): T
 
+    override fun toString(): String {
+        return "${this.javaClass.simpleName}('$name')"
+    }
+
     class dynamic(name: String): DataType<Any>(name, 0) {
         override fun put(buffer: ByteBuffer, value: Any) {
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -67,9 +71,28 @@ sealed class DataType<T: Any>(val name: String, val width: Int) {
         }
     }
 
+    open class label(name: String): DataType<Any>(name, 4) {
+        override fun put(buffer: ByteBuffer, value: Any) {
+            value as Int
+            buffer.putUInt(value.toUInt())
+        }
+
+        override fun parse(value: String): Any? {
+            return if(value.matches(pattern)) value else null
+        }
+
+        override fun read(buffer: ByteBuffer): Any {
+            return buffer.getUInt()
+        }
+
+        companion object: label("") {
+            val pattern = "^[a-zA-Z][a-zA-Z0-9]*$".toRegex()
+        }
+    }
+
     open class u8(name: String): DataType<UByte>(name, 1) {
         override fun put(buffer: ByteBuffer, value: UByte) {
-            buffer.putUByte(value as UByte)
+            buffer.putUByte(value)
         }
 
         override fun parse(value: String): UByte? {

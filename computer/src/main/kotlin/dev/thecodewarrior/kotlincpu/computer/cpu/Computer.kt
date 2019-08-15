@@ -1,5 +1,7 @@
 package dev.thecodewarrior.kotlincpu.computer.cpu
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -8,7 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
 
-class Computer {
+class Computer : CoroutineScope by CoroutineScope(Dispatchers.Default) {
     val memory = RAM(this, 0xFFFF)
     val cpu = CPU(this)
 
@@ -23,21 +25,27 @@ class Computer {
     private val clock = ClockChannel { 1000L / clockSpeed }
     private val postClock = mutableListOf<Channel<Unit>>()
 
-    suspend fun start() {
-        while(true) {
-            clock.receive()
-            if(running) {
-                step()
+    fun start() {
+        launch {
+            while (true) {
+                clock.receive()
+                if (running) {
+                    step()
+                }
             }
         }
     }
 
     fun step() {
         cpu.step()
+        updateUI()
+    }
+
+    fun updateUI() {
         postClock.forEach { it.offer(Unit) }
     }
 
-    fun createPostClockChannel(): ReceiveChannel<Unit> {
+    fun createUpdateChannel(): ReceiveChannel<Unit> {
         val channel = Channel<Unit>()
         postClock.add(channel)
         return channel

@@ -2,10 +2,11 @@ package dev.thecodewarrior.kotlincpu.assembler.instructions
 
 import dev.thecodewarrior.kotlincpu.assembler.Context
 import dev.thecodewarrior.kotlincpu.assembler.Parser
-import dev.thecodewarrior.kotlincpu.common.Opcode
+import dev.thecodewarrior.kotlincpu.common.Condition
+import dev.thecodewarrior.kotlincpu.common.Insn
 import java.nio.ByteBuffer
 
-abstract class Insn(val opcode: Opcode) {
+abstract class Instruction(val insn: Insn) {
     /**
      * The assembly
      */
@@ -22,10 +23,9 @@ abstract class Insn(val opcode: Opcode) {
     lateinit var context: Context
 
     /**
-     * The instruction size in bytes
+     * The labels this instruction is marked with
      */
-    val width: Int
-        get() = 2 + opcode.payloadWidth
+    var condition: Condition = Condition.YES
 
     abstract fun push(buffer: ByteBuffer, parser: Parser)
 }

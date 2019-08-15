@@ -1,30 +1,26 @@
 package dev.thecodewarrior.kotlincpu.computer.cpu.instructions
 
 import dev.thecodewarrior.kotlincpu.common.DataType
-import dev.thecodewarrior.kotlincpu.common.Opcode
-import dev.thecodewarrior.kotlincpu.common.Opcodes
+import dev.thecodewarrior.kotlincpu.common.Insn
+import dev.thecodewarrior.kotlincpu.common.Instructions
 import dev.thecodewarrior.kotlincpu.computer.cpu.CPU
-import dev.thecodewarrior.kotlincpu.computer.util.extensions.getUByte
-import dev.thecodewarrior.kotlincpu.computer.util.extensions.getUInt
-import dev.thecodewarrior.kotlincpu.computer.util.extensions.getULong
-import dev.thecodewarrior.kotlincpu.computer.util.extensions.getUShort
 import java.nio.ByteBuffer
 
 object InstructionRegistry {
-    val instructions: MutableList<Insn> = mutableListOf()
+    val instructions: MutableList<Instruction> = mutableListOf()
 //        SimpleInsn("NOP", 0x0u, 0u) { _, _ -> },
 //        SimpleInsn("HALT", 0xFFFFu, 0u) { cpu, _ ->
 //            cpu.computer.running = false
 //        }
 
-    val nop = +insn(Opcodes.nop) { _, _ -> }
+    val nop = +insn(Instructions.nop) { _, _ -> }
 
-    val mov_imm = +insn(Opcodes.mov_imm) { cpu, buffer ->
+    val mov_imm = +insn(Instructions.mov_imm) { cpu, buffer ->
         val dst = DataType.reg.read(buffer)
         val value = DataType.u32.read(buffer)
         cpu.registers[dst] = value
     }
-    val mov_r = +insn(Opcodes.mov_imm) { cpu, buffer ->
+    val mov_r = +insn(Instructions.mov_r) { cpu, buffer ->
         val dst = DataType.reg.read(buffer)
         val src = DataType.reg.read(buffer)
         cpu.registers[dst] = cpu.registers[src]
@@ -42,28 +38,47 @@ object InstructionRegistry {
 //    val str_r_off_imm = +//Opcode("str_r_off_imm", opcodes.create(), false, reg("src"), reg("address"), u32("offset"))
 //    val str_r_off_r = +//Opcode("str_r_off_r", opcodes.create(), false, reg("src"), reg("address"), reg("offset"))
 
-    val add_imm = +insn(Opcodes.add_imm) { cpu, buffer ->
+    val cmp_imm = +insn(Instructions.cmp_imm) { cpu, buffer ->
+        val left = DataType.reg.read(buffer)
+        val right = DataType.u32.read(buffer)
+        cpu.flags.comparison = cpu.registers[left].compareTo(right)
+    }
+    val cmp_r = +insn(Instructions.cmp_r) { cpu, buffer ->
+        val left = DataType.reg.read(buffer)
+        val right = DataType.reg.read(buffer)
+        cpu.flags.comparison = cpu.registers[left].compareTo(cpu.registers[right])
+    }
+
+    val jmp_imm = +insn(Instructions.jmp_imm) { cpu, buffer ->
+        cpu.pc = DataType.u32.read(buffer)
+    }
+    val jmp_r = +insn(Instructions.jmp_r) { cpu, buffer ->
+        cpu.pc = cpu.registers[DataType.reg.read(buffer)]
+    }
+
+    val add_imm = +insn(Instructions.add_imm) { cpu, buffer ->
         val dst = DataType.reg.read(buffer)
         val left = DataType.reg.read(buffer)
         val right = DataType.u32.read(buffer)
         cpu.registers[dst] = cpu.registers[left] + right
     }
-    val add_r = +insn(Opcodes.add_r) { cpu, buffer ->
+    val add_r = +insn(Instructions.add_r) { cpu, buffer ->
         val dst = DataType.reg.read(buffer)
         val left = DataType.reg.read(buffer)
         val right = DataType.reg.read(buffer)
         cpu.registers[dst] = cpu.registers[left] + cpu.registers[right]
     }
 
-    fun findInsn(buffer: ByteBuffer, address: Int): Insn? = instructions.find { it.matches(buffer, address) }
+    private val instructionMap = instructions.associateBy { it.insn }
+    fun findInsn(opcode: Insn): Instruction = instructionMap.getValue(opcode)
 
-    private operator fun Insn.unaryPlus(): Insn {
+    private operator fun Instruction.unaryPlus(): Instruction {
         instructions.add(this)
         return this
     }
 
-    private inline fun insn(opcode: Opcode, crossinline callback: (CPU, ByteBuffer) -> Unit): Insn {
-        return object : Insn(opcode) {
+    private inline fun insn(opcode: Insn, crossinline callback: (CPU, ByteBuffer) -> Unit): Instruction {
+        return object : Instruction(opcode) {
             override fun run(cpu: CPU, buffer: ByteBuffer) {
                 callback(cpu, buffer)
             }

@@ -2,49 +2,47 @@ package dev.thecodewarrior.kotlincpu.assembler.instructions
 
 import dev.thecodewarrior.kotlincpu.assembler.Parser
 import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Tokenizer
-import dev.thecodewarrior.kotlincpu.assembler.util.putUByte
-import dev.thecodewarrior.kotlincpu.assembler.util.putUInt
 import dev.thecodewarrior.kotlincpu.assembler.util.putUShort
 import dev.thecodewarrior.kotlincpu.common.DataType
-import dev.thecodewarrior.kotlincpu.common.Opcode
-import dev.thecodewarrior.kotlincpu.common.Opcodes
+import dev.thecodewarrior.kotlincpu.common.Insn
+import dev.thecodewarrior.kotlincpu.common.Instructions
 import java.nio.ByteBuffer
 
 object InstructionRegistry {
     val factories: MutableList<InsnFactory> = mutableListOf()
 
     val nop = +factory("nop") { _, _ ->
-        insn(Opcodes.nop) { _, _ -> }
+        insn(Instructions.nop) { _, _ -> }
     }
 
-    val mov = +factory("mov", Opcodes.mov_imm, Opcodes.mov_r)
-
-    val add = +factory("add", Opcodes.add_imm, Opcodes.add_r)
+    val mov = +factory("mov", Instructions.mov_imm, Instructions.mov_r)
+    val add = +factory("add", Instructions.add_imm, Instructions.add_r)
+    val cmp = +factory("cmp", Instructions.cmp_imm, Instructions.cmp_r)
+    val jmp = +factory("jmp", Instructions.jmp_imm, Instructions.jmp_r, Instructions.pseudo_jmp_label)
 
     private operator fun InsnFactory.unaryPlus(): InsnFactory {
         factories.add(this)
         return this
     }
 
-    private inline fun factory(name: String, crossinline callback: (parser: Parser, tokenizer: Tokenizer) -> Insn): InsnFactory {
+    private inline fun factory(name: String, crossinline callback: (parser: Parser, tokenizer: Tokenizer) -> Instruction): InsnFactory {
         return object : InsnFactory(name) {
-            override fun parse(parser: Parser, tokenizer: Tokenizer): Insn = callback(parser, tokenizer)
+            override fun parse(parser: Parser, tokenizer: Tokenizer): Instruction = callback(parser, tokenizer)
         }
     }
 
-    private inline fun insn(opcode: Opcode, crossinline payload: (buffer: ByteBuffer, parser: Parser) -> Unit): Insn {
-        return object : Insn(opcode) {
+    private inline fun insn(opcode: Insn, crossinline payload: (buffer: ByteBuffer, parser: Parser) -> Unit): Instruction {
+        return object : Instruction(opcode) {
             override fun push(buffer: ByteBuffer, parser: Parser) {
-                buffer.putUShort(opcode.opcode)
                 payload(buffer, parser)
             }
         }
     }
 
-    private fun factory(name: String, vararg _opcodes: Opcode): InsnFactory {
+    private fun factory(name: String, vararg _opcodes: Insn): InsnFactory {
         val opcodes = _opcodes.toList()
         return object : InsnFactory(name) {
-            override fun parse(parser: Parser, tokenizer: Tokenizer): Insn {
+            override fun parse(parser: Parser, tokenizer: Tokenizer): Instruction {
                 val start = tokenizer.index
 
                 for(opcode in opcodes) {
@@ -53,10 +51,15 @@ object InstructionRegistry {
                         if(tokenizer.eof()) null else it.parse(tokenizer.pop().value)
                     }
                     if(values.size == opcode.payload.size) { // all the elements passed the non-null test
-                        return object : Insn(opcode) {
+                        return object : Instruction(opcode) {
                             override fun push(buffer: ByteBuffer, parser: Parser) {
-                                buffer.putUShort(opcode.opcode)
-                                opcode.payload.zip(values) { argument, value ->
+                                opcode.payload.zip(values) { argument, _value ->
+                                    val value = if(argument is DataType.label) {
+                                        val labelInsn = context.findLabel(_value as String).instruction!!
+                                        labelInsn.address
+                                    } else {
+                                        _value
+                                    }
                                     @Suppress("UNCHECKED_CAST")
                                     (argument as DataType<Any>).put(buffer, value)
                                 }
