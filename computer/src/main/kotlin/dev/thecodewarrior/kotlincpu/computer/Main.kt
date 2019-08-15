@@ -13,26 +13,34 @@ import javax.swing.UIManager
 object Main : CoroutineScope by CoroutineScope(Dispatchers.Default) {
     val preferences = Preferences.userNodeForPackage(Main::class.java)
 
+    lateinit var program: File
+
     var computer = Computer()
 
     val cpuStatus = CpuStatusFrame()
 
     init {
-        cpuStatus.cpu = computer.cpu
-        computer.start()
         cpuStatus.isVisible = true
     }
 
+    fun reset() {
+        computer = Computer()
+        cpuStatus.cpu = computer.cpu
+
+        computer.start()
+        computer.memory.buffer.also { buf ->
+            buf.rewind()
+            buf.put(program.readBytes())
+        }
+        computer.updateUI()
+    }
 }
 
 fun main(args: Array<String>) {
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
     Main // start app
-    Main.computer.memory.buffer.also { buf ->
-        buf.rewind()
-        buf.put(File(args[0]).readBytes())
-    }
-    Main.computer.updateUI()
+    Main.program = File(args[0])
+    Main.reset()
 }
 
 

@@ -49,7 +49,7 @@ class Parser(val file: String, val text: String) {
             insn.sourceMap = SourceMap(file, name.line)
             insn.context = context
             if(condition != null)
-                insn.condition = Condition.valueOf(condition)
+                insn.condition = Condition.valueOf(condition.toUpperCase())
             context.labels.addAll(labels.map { Label(it, insn) })
             labels.clear()
 

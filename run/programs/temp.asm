@@ -2,7 +2,8 @@
     mov r1, #0x03
 restart:
     add r0, r0, r1
-    jmp restart
+    cmp r0, #0x50
+    lt? jmp restart
 ;start:
     ;add r0, r1, r0
     ;cmp r0, 0xf0

@@ -2,6 +2,7 @@ package dev.thecodewarrior.kotlincpu.computer.ui
 
 import dev.thecodewarrior.kotlincpu.common.Condition
 import dev.thecodewarrior.kotlincpu.common.Insn
+import dev.thecodewarrior.kotlincpu.computer.Main
 import dev.thecodewarrior.kotlincpu.computer.cpu.CPU
 import dev.thecodewarrior.kotlincpu.computer.util.dim
 import dev.thecodewarrior.kotlincpu.computer.util.extensions.getUShort
@@ -51,6 +52,15 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
             row.layout = BoxLayout(row, BoxLayout.LINE_AXIS)
             contentPane.add(row, BorderLayout.PAGE_START)
         }
+
+    val resetButton = JButton("Reset") %
+        { button ->
+            button.addActionListener {
+                Main.reset()
+            }
+            topRow.add(button)
+        }
+
     val stepButton = JButton("Step") %
         { button ->
             button.addActionListener {
@@ -68,7 +78,7 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
             topRow.add(spinner)
         }
 
-    val powerButton = JToggleButton("Clock") %
+    val clockButton = JToggleButton("Clock") %
         { button ->
             button.addActionListener {
                 cpu?.computer?.running = button.isSelected
@@ -79,6 +89,7 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
     val instruction = JTextArea() %
         { label ->
             label.font = Font(Font.MONOSPACED, Font.PLAIN, 12)
+            label.isEditable = false
             contentPane.add(label, BorderLayout.CENTER)
         }
 
@@ -95,58 +106,74 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
         updateUI()
     }
 
-    init {
-    }
-
     fun updateUI() {
         val cpu = cpu
         if(cpu == null) {
-            powerButton.isSelected = false
-            this.instruction.text = """
+            loadPlaceholderUI()
+        } else {
+            updateUI(cpu)
+        }
+    }
+
+    private fun loadPlaceholderUI() {
+        clockButton.isEnabled = false
+        stepButton.isEnabled = false
+        clockSpeed.isEnabled = false
+
+        clockButton.isSelected = false
+        this.instruction.text = """
                 program counter: ???
                     opcode: ???
                     condition: ???
                     instruction: ???
                     payload: ???
             """.trimIndent()
-            registersModel.update()
-        } else {
-            powerButton.isSelected = cpu.computer.running
+        registersModel.update()
+    }
 
-            val opcode = cpu.programBuffer.getUShort(cpu.pc.toInt())
-            val insn = Insn.decode(opcode)
-            val condition = Condition.decode(opcode)
+    private fun updateUI(cpu: CPU) {
+        clockButton.isEnabled = false
 
-            var addr = cpu.pc.toInt() + 2
-            val payload = insn?.payload?.joinToString("") { arg ->
-                val s = "\n        $arg: " +
-                    (0 until arg.width)
-                        .map { i ->
-                            cpu.programBuffer.get(addr + i).toString(16).padStart(2, '0')
-                        }
-                        .chunked(2)
-                        .map { it.joinToString("") }
-                        .joinToString(" ")
-                addr += arg.width
-                return@joinToString s
-            } ?: "???"
+        clockButton.isSelected = cpu.computer.running
 
-            this.instruction.text = """
+        updateInstructionInfo(cpu)
+
+        registersModel.update()
+    }
+
+    private fun updateInstructionInfo(cpu: CPU) {
+        val opcode = cpu.programBuffer.getUShort(cpu.pc.toInt())
+        val insn = Insn.decode(opcode)
+        val condition = Condition.decode(opcode)
+
+        var addr = cpu.pc.toInt() + 2
+        val payload = insn?.payload?.joinToString("") { arg ->
+            val s = "\n        $arg: " +
+                (0 until arg.width)
+                    .map { i ->
+                        cpu.programBuffer.get(addr + i).toString(16).padStart(2, '0')
+                    }
+                    .chunked(2)
+                    .map { it.joinToString("") }
+                    .joinToString(" ")
+            addr += arg.width
+            return@joinToString s
+        } ?: "???"
+
+        this.instruction.text = """
                 program counter: 0x%s
                     opcode: 0x%s
-                    condition: %s
+                    condition: %s (%s)
                     instruction: %s
                     payload: %s
             """.trimIndent().format(
-                cpu.pc.toString(16),
-                opcode.toString(16).padStart(4, '0'),
-                "$condition",
-                insn?.name ?: "???",
-                payload
-            )
-
-            registersModel.update()
-        }
+            cpu.pc.toString(16),
+            opcode.toString(16).padStart(4, '0'),
+            "$condition",
+            if(condition.matches(cpu.flags.comparison)) "met" else "unmet",
+            insn?.name ?: "???",
+            payload
+        )
     }
 
     inner class RegistersModel: AbstractListModel<String>() {
