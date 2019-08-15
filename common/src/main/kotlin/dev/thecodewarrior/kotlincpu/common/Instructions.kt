@@ -31,6 +31,9 @@ object Instructions {
     val pseudo_jmp_label = Insn(jmp_imm.name, jmp_imm.opcode, label("destination"))
     val jmp_r = +Insn("jmp_r", opcodes.create(), reg("destination"))
 
+    val inc = +Insn("inc", opcodes.create(), reg("reg"))
+    val dec = +Insn("dec", opcodes.create(), reg("reg"))
+
     val add_imm = +Insn("add_imm", opcodes.create(), reg("dst"), reg("left"), u32("right"))
     val add_r = +Insn("add_r", opcodes.create(), reg("dst"), reg("left"), reg("right"))
 

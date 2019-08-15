@@ -56,6 +56,15 @@ object InstructionRegistry {
         cpu.pc = cpu.registers[DataType.reg.read(buffer)]
     }
 
+    val inc = +insn(Instructions.inc) { cpu, buffer ->
+        val reg = DataType.reg.read(buffer)
+        cpu.registers[reg] = cpu.registers[reg] + 1u
+    }
+    val dec = +insn(Instructions.dec) { cpu, buffer ->
+        val reg = DataType.reg.read(buffer)
+        cpu.registers[reg] = cpu.registers[reg] - 1u
+    }
+
     val add_imm = +insn(Instructions.add_imm) { cpu, buffer ->
         val dst = DataType.reg.read(buffer)
         val left = DataType.reg.read(buffer)
@@ -107,7 +116,6 @@ object InstructionRegistry {
         val right = DataType.reg.read(buffer)
         cpu.registers[dst] = cpu.registers[left] / cpu.registers[right]
     }
-
     val sdiv_imm = +insn(Instructions.sdiv_imm) { cpu, buffer ->
         val dst = DataType.reg.read(buffer)
         val left = DataType.reg.read(buffer)
@@ -121,7 +129,6 @@ object InstructionRegistry {
         cpu.registers[dst] = (cpu.registers[left].toInt() / cpu.registers[right].toInt()).toUInt()
     }
 
-
     val mod_imm = +insn(Instructions.mod_imm) { cpu, buffer ->
         val dst = DataType.reg.read(buffer)
         val left = DataType.reg.read(buffer)
@@ -134,7 +141,6 @@ object InstructionRegistry {
         val right = DataType.reg.read(buffer)
         cpu.registers[dst] = cpu.registers[left] % cpu.registers[right]
     }
-
     val smod_imm = +insn(Instructions.smod_imm) { cpu, buffer ->
         val dst = DataType.reg.read(buffer)
         val left = DataType.reg.read(buffer)

@@ -19,6 +19,8 @@ object InstructionRegistry {
     val cmp = +factory("cmp", Instructions.cmp_imm, Instructions.cmp_r)
     val jmp = +factory("jmp", Instructions.jmp_imm, Instructions.jmp_r, Instructions.pseudo_jmp_label)
 
+    val inc = +factory("inc", Instructions.inc)
+    val dec = +factory("dec", Instructions.dec)
     val add = +factory("add", Instructions.add_imm, Instructions.add_r)
     val sub = +factory("sub", Instructions.sub_imm, Instructions.sub_r)
     val mul = +factory("mul", Instructions.mul_imm, Instructions.mul_r)

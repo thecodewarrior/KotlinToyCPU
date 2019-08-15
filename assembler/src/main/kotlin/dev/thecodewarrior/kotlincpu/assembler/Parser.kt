@@ -18,7 +18,7 @@ class Parser(val file: String, val text: String) {
 
     init {
         val commentRegex = ";[^\"]*$".toRegex()
-        val tokens = Tokenizer(text.replace(commentRegex, ""))
+        val tokens = Tokenizer(text.lines().joinToString("\n") { it.replace(commentRegex, " ") })
         val labels = mutableSetOf<String>()
         while(!tokens.eof()) {
             if(tokens.peek().testLine()) {

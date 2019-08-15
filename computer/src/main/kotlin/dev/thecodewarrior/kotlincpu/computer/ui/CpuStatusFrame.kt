@@ -70,7 +70,7 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
             contentPane.add(button)
         }
 
-    val clockModel = SpinnerNumberModel(1, 1, 32, 1)
+    val clockModel = SpinnerNumberModel(1, 1, 1024, 1)
     val clockSpeed = JSpinner(clockModel) %
         { spinner ->
             spinner.addChangeListener {
