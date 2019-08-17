@@ -1,26 +1,25 @@
-; r0 = temporary value
-; r1 = value to test against
-; r2 = half of candidate
-; r5 = candidate prime
-; r10 = last prime
 
-mov #2, r5
+.candidate = r5
+.halfCandidate = r2
+.test = r1
+.latestPrime = r10
+
+mov 1, candidate
 next:
-    inc r5
-    mov #2, r1
+    add candidate, 2, candidate
+    div candidate, 2, halfCandidate
 
-    div r5, #2, r2
-    test:
-        cmp r1, r2
-        gt? jmp success
+    mov 2, test
+    test_loop:
+        cmp test, halfCandidate
+        gt? jmp :success
 
-        mod r5, r1, r0
-        cmp r0, #0
-        eq? jmp failure
-        inc r1
-        jmp test
+        mod candidate test, r0
+        cmp r0, 0
+        eq? jmp :failure
+        inc test
+        jmp :test_loop
 success:
-    mov r5, r10
+    mov candidate, latestPrime
 failure:
-    inc r5
-    jmp next
+    jmp :next

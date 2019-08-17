@@ -10,7 +10,7 @@ abstract class Instruction(val insn: Insn) {
     /**
      * The assembly
      */
-    var sourceMap: SourceMap? = null
+    lateinit var location: Location
 
     /**
      * The starting address of this instruction

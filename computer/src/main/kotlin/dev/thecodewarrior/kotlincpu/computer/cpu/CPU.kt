@@ -2,18 +2,19 @@ package dev.thecodewarrior.kotlincpu.computer.cpu
 
 import dev.thecodewarrior.kotlincpu.common.Condition
 import dev.thecodewarrior.kotlincpu.common.Insn
+import dev.thecodewarrior.kotlincpu.common.Register
+import dev.thecodewarrior.kotlincpu.common.util.getUShort
+import dev.thecodewarrior.kotlincpu.common.util.pos
 import dev.thecodewarrior.kotlincpu.computer.cpu.instructions.InstructionRegistry
-import dev.thecodewarrior.kotlincpu.computer.util.extensions.getUShort
-import dev.thecodewarrior.kotlincpu.computer.util.extensions.pos
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 
 class CPU(val computer: Computer) {
-    val registers = Registers(this, Constants.registerCount)
+    val registers = Registers(this, Register.values().size)
     val flags = Flags(this)
     var pc: UInt
-        get() = registers[registers.count-1]
-        set(value) { registers[registers.count-1] = value }
+        get() = registers[Register.pc]
+        set(value) { registers[Register.pc] = value }
 
     val programBuffer = ByteBuffer.wrap(computer.memory.buffer.array())
 
@@ -34,7 +35,7 @@ class CPU(val computer: Computer) {
             }
         } catch(e: Exception) {
             logger.error("Error at 0x${insnAddress.toString(16)}", e)
-            computer.running = false
+            throw e
         }
     }
 }

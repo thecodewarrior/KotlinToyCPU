@@ -27,7 +27,7 @@ class Argument<T: Any>(val name: String, val type: DataType<T>) {
 }
 
 object Arguments {
-    fun reg(name: String): Argument<UByte> = Argument(name, DataType.reg)
+    fun reg(name: String): Argument<Register> = Argument(name, DataType.reg)
     fun label(name: String): Argument<Any> = Argument(name, DataType.label)
     fun u8(name: String): Argument<UByte> = Argument(name, DataType.u8)
     fun i8(name: String): Argument<Byte> = Argument(name, DataType.i8)

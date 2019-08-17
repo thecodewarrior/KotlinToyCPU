@@ -6,9 +6,10 @@ import dev.thecodewarrior.kotlincpu.common.Argument
 import dev.thecodewarrior.kotlincpu.common.DataType
 import dev.thecodewarrior.kotlincpu.common.Insn
 import dev.thecodewarrior.kotlincpu.common.Instructions
+import dev.thecodewarrior.kotlincpu.common.Register
 import java.nio.ByteBuffer
 
-object InstructionRegistry {
+internal object InstructionRegistry {
     val factories: MutableList<InsnFactory> = mutableListOf()
 
     val nop = +factory("nop") { _, _ ->
@@ -16,6 +17,16 @@ object InstructionRegistry {
     }
 
     val mov = +factory("mov", Instructions.mov_imm, Instructions.mov_r)
+
+    val ldr = +factory("ldr",
+        Instructions.ldr_imm_off_r, Instructions.ldr_imm,
+        Instructions.ldr_r_off_imm, Instructions.ldr_r_off_r, Instructions.ldr_r_off_imm
+    )
+    val str = +factory("str",
+        Instructions.ldr_imm_off_r, Instructions.ldr_imm,
+        Instructions.ldr_r_off_imm, Instructions.ldr_r_off_r, Instructions.ldr_r_off_imm
+    )
+
     val cmp = +factory("cmp", Instructions.cmp_imm, Instructions.cmp_r)
     val jmp = +factory("jmp", Instructions.jmp_imm, Instructions.jmp_r, Instructions.pseudo_jmp_label)
 
@@ -53,30 +64,40 @@ object InstructionRegistry {
         return object : InsnFactory(name) {
             override fun parse(parser: Parser, tokenizer: Tokenizer): Instruction {
                 val start = tokenizer.index
+                val line = tokenizer.peek().line
 
                 for(opcode in opcodes) {
                     tokenizer.index = start
                     val values = opcode.payload.mapNotNull {
-                        if(tokenizer.eof()) null else it.type.parse(tokenizer.pop().value)
+                        if(tokenizer.eof()) {
+                            null
+                        } else {
+                            var token = tokenizer.pop()
+                            val variable = parser.context.variables[token.value]
+                            if(variable != null)
+                                token = variable[0]
+                            it.type.parse(token.value)
+                        }
                     }
                     if(values.size == opcode.payload.size) { // all the elements passed the non-null test
                         return object : Instruction(opcode) {
                             override fun push(buffer: ByteBuffer, parser: Parser) {
-                                opcode.payload.zip(values) { argument, _value ->
-                                    val value = if(argument.type == DataType.label) {
-                                        val labelInsn = context.findLabel(_value as String).instruction!!
-                                        labelInsn.address
-                                    } else {
-                                        _value
+                                opcode.payload.zip(values) { argument, value ->
+                                    val resolved = when {
+                                        argument.type == DataType.label -> {
+                                            val labelInsn = context.findLabel(value as String).instruction!!
+                                            labelInsn.address
+                                        }
+                                        else -> value
                                     }
                                     @Suppress("UNCHECKED_CAST")
-                                    (argument as Argument<Any>).type.put(buffer, value)
+                                    (argument as Argument<Any>).type.put(buffer, resolved)
                                 }
                             }
                         }
                     }
                 }
-                error("invalid instruction $name")
+                error("invalid instruction $name on line ${line + 1}")
             }
         }
     }

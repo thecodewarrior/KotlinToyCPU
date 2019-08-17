@@ -2,22 +2,19 @@ package dev.thecodewarrior.kotlincpu.computer.ui
 
 import dev.thecodewarrior.kotlincpu.common.Condition
 import dev.thecodewarrior.kotlincpu.common.Insn
-import dev.thecodewarrior.kotlincpu.computer.Main
+import dev.thecodewarrior.kotlincpu.common.util.getUShort
 import dev.thecodewarrior.kotlincpu.computer.cpu.CPU
+import dev.thecodewarrior.kotlincpu.computer.cpu.Computer
 import dev.thecodewarrior.kotlincpu.computer.util.dim
-import dev.thecodewarrior.kotlincpu.computer.util.extensions.getUShort
 import dev.thecodewarrior.kotlincpu.computer.util.extensions.rem
 import dev.thecodewarrior.kotlincpu.computer.util.rem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.awt.BorderLayout
 import java.awt.Font
 import javax.swing.AbstractListModel
-import javax.swing.BoxLayout
 import javax.swing.GroupLayout
 import javax.swing.JButton
-import javax.swing.JFrame
 import javax.swing.JList
 import javax.swing.JPanel
 import javax.swing.JScrollPane
@@ -26,72 +23,49 @@ import javax.swing.JTextArea
 import javax.swing.JToggleButton
 import javax.swing.SpinnerNumberModel
 
-class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Main) {
-    var cpu: CPU? = null
-        set(value) {
-            field = value
+class CpuStatusPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by CoroutineScope(Dispatchers.Main) {
+    val cpu: CPU get() = frame.computer.cpu
 
-            val postClock = cpu?.computer?.createUpdateChannel()
-            launch {
-                while(true) {
-                    postClock?.receive()
-                    updateUI()
-                }
-            }
-
-            updateUI()
-        }
-
-    init {
-        title = "CPU"
-        defaultCloseOperation = EXIT_ON_CLOSE
-        size = dim(350, 350)
-        setLocationRelativeTo(null)
-    }
-
-    val layout = GroupLayout(contentPane)
-    init {
-        contentPane.layout = layout
-    }
+    val layout = GroupLayout(this).also { setLayout(it) }
 
     val resetButton = JButton("Reset") %
         { button ->
             button.addActionListener {
-                Main.reset()
+                frame.reset()
             }
-            contentPane.add(button)
+            this.add(button)
         }
 
     val stepButton = JButton("Step") %
         { button ->
             button.addActionListener {
-                cpu?.computer?.step()
+                frame.step()
             }
-            contentPane.add(button)
+            this.add(button)
         }
 
     val clockModel = SpinnerNumberModel(1, 1, 1024, 1)
     val clockSpeed = JSpinner(clockModel) %
         { spinner ->
             spinner.addChangeListener {
-                cpu?.computer?.clockSpeed = clockModel.number.toInt()
+                frame.clock.frequency = clockModel.number.toDouble()
             }
-            contentPane.add(spinner)
+            this.add(spinner)
         }
 
     val clockButton = JToggleButton("Clock") %
         { button ->
             button.addActionListener {
-                cpu?.computer?.running = button.isSelected
+                frame.clock.running = button.isSelected
             }
-            contentPane.add(button)
+            this.add(button)
         }
 
     val instruction = JTextArea() %
         { label ->
             label.font = Font(Font.MONOSPACED, Font.PLAIN, 12)
             label.isEditable = false
-            contentPane.add(label, BorderLayout.CENTER)
+            this.add(label)
         }
 
     val registersModel = RegistersModel()
@@ -100,7 +74,7 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
             list.model = registersModel
             list.font = Font(Font.MONOSPACED, Font.PLAIN, 12)
             val scrollPane = JScrollPane(list)
-            contentPane.add(scrollPane, BorderLayout.LINE_END)
+            this.add(scrollPane)
         }
 
     init {
@@ -135,47 +109,29 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
             }
         }
 
-        updateUI()
+        updateData()
+
+        preferredSize = dim(600, 350)
+        minimumSize = preferredSize
     }
 
-    fun updateUI() {
-        val cpu = cpu
-        if(cpu == null) {
-            loadPlaceholderUI()
-        } else {
-            updateUI(cpu)
-        }
+    fun reset() {
+
     }
 
-    private fun loadPlaceholderUI() {
-        clockButton.isEnabled = false
-        stepButton.isEnabled = false
-        clockSpeed.isEnabled = false
-
-        clockButton.isSelected = false
-        this.instruction.text = """
-                program counter: ???
-                    opcode: ???
-                    condition: ???
-                    instruction: ???
-                    payload: ???
-            """.trimIndent()
-        registersModel.update()
-    }
-
-    private fun updateUI(cpu: CPU) {
+    fun updateData() {
         clockButton.isEnabled = true
         stepButton.isEnabled = true
         clockSpeed.isEnabled = true
 
-        clockButton.isSelected = cpu.computer.running
+        clockButton.isSelected = frame.clock.running
 
-        updateInstructionInfo(cpu)
+        updateInstructionInfo()
 
         registersModel.update()
     }
 
-    private fun updateInstructionInfo(cpu: CPU) {
+    private fun updateInstructionInfo() {
         val opcode = cpu.programBuffer.getUShort(cpu.pc.toInt())
         val insn = Insn.decode(opcode)
         val condition = Condition.decode(opcode)
@@ -212,7 +168,7 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
 
     inner class RegistersModel: AbstractListModel<String>() {
         override fun getElementAt(index: Int): String {
-            val cpu = cpu ?: return ""
+            val cpu = cpu
             val maxIndexWidth = (cpu.registers.count - 1).toString().length
 
             val indexText = index.toString().padStart(maxIndexWidth)
@@ -221,7 +177,7 @@ class CpuStatusFrame : JFrame(), CoroutineScope by CoroutineScope(Dispatchers.Ma
         }
 
         override fun getSize(): Int {
-            return cpu?.registers?.count ?: 0
+            return cpu.registers.count
         }
 
         fun update() {

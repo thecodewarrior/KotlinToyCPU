@@ -14,40 +14,12 @@ class Computer : CoroutineScope by CoroutineScope(Dispatchers.Default) {
     val memory = RAM(this, 0xFFFF)
     val cpu = CPU(this)
 
-    var running: Boolean = false
-    var clockSpeed: Int = 5
-
     fun loadProgram(program: ByteBuffer) {
         memory.buffer.put(program)
         memory.buffer.rewind()
     }
 
-    private val clock = ClockChannel { 1000L / clockSpeed }
-    private val postClock = mutableListOf<Channel<Unit>>()
-
-    fun start() {
-        launch {
-            while (true) {
-                clock.receive()
-                if (running) {
-                    step()
-                }
-            }
-        }
-    }
-
     fun step() {
         cpu.step()
-        updateUI()
-    }
-
-    fun updateUI() {
-        postClock.forEach { it.offer(Unit) }
-    }
-
-    fun createUpdateChannel(): ReceiveChannel<Unit> {
-        val channel = Channel<Unit>()
-        postClock.add(channel)
-        return channel
     }
 }

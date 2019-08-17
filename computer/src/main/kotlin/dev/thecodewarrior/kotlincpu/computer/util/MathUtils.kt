@@ -34,6 +34,21 @@ fun roundInt(value: Float): Int = round(value).toInt()
 @JvmSynthetic
 fun roundInt(value: Double): Int = round(value).toInt()
 
+@JvmSynthetic
+fun floorLong(value: Float): Long = floor(value).toLong()
+@JvmSynthetic
+fun floorLong(value: Double): Long = floor(value).toLong()
+
+@JvmSynthetic
+fun ceilLong(value: Float): Long = ceil(value).toLong()
+@JvmSynthetic
+fun ceilLong(value: Double): Long = ceil(value).toLong()
+
+@JvmSynthetic
+fun roundLong(value: Float): Long = round(value).toLong()
+@JvmSynthetic
+fun roundLong(value: Double): Long = round(value).toLong()
+
 /**
  * Get `Vec2d` instances, selecting from a pool of small integer instances when possible. This can vastly reduce the
  * number of Vec2d allocations when they are used as intermediates, e.g. when adding one Vec2d to another to offset it,

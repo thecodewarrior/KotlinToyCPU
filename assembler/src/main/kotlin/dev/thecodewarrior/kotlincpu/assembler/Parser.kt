@@ -2,11 +2,13 @@ package dev.thecodewarrior.kotlincpu.assembler
 
 import dev.thecodewarrior.kotlincpu.assembler.instructions.Instruction
 import dev.thecodewarrior.kotlincpu.assembler.instructions.InstructionRegistry
-import dev.thecodewarrior.kotlincpu.assembler.instructions.SourceMap
+import dev.thecodewarrior.kotlincpu.assembler.instructions.Location
+import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Token
 import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Tokenizer
 import dev.thecodewarrior.kotlincpu.assembler.util.buildBytes
-import dev.thecodewarrior.kotlincpu.assembler.util.putUShort
 import dev.thecodewarrior.kotlincpu.common.Condition
+import dev.thecodewarrior.kotlincpu.common.util.putUInt
+import dev.thecodewarrior.kotlincpu.common.util.putUShort
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 
@@ -28,6 +30,15 @@ class Parser(val file: String, val text: String) {
             while(tokens.peek().value.endsWith(':')) {
                 labels.add(tokens.pop().value.removeSuffix(":"))
             }
+            if(tokens.peek().value.startsWith('.')) {
+                val variable = tokens.pop().value.removePrefix(".")
+                tokens.pop().expect("=")
+                val list = mutableListOf<Token>()
+                while(!tokens.peek().testLine()) {
+                    list.add(tokens.pop())
+                }
+                context.variables[variable] = list
+            }
 
             if(tokens.peek().testLine()) {
                 tokens.pop()
@@ -46,7 +57,7 @@ class Parser(val file: String, val text: String) {
             val factory = InstructionRegistry.factoryMap.getValue(name.value)
             val insn = factory.parse(this, tokens)
 
-            insn.sourceMap = SourceMap(file, name.line)
+            insn.location = Location(file, name.line)
             insn.context = context
             if(condition != null)
                 insn.condition = Condition.valueOf(condition.toUpperCase())
@@ -72,8 +83,7 @@ class Parser(val file: String, val text: String) {
         logger.debug("Writing instructions")
 
         val programDigits = (instructions.lastOrNull()?.address ?: 0).toString(16).length
-        val maxInsnWidth = instructions.maxBy { it.insn.payloadWidth }?.insn?.payloadWidth ?: 0
-        val insnBytesTextWidth = maxInsnWidth * 2 + maxInsnWidth / 2
+        val maxInsnWidth = instructions.map { it.insn.payloadWidth * 2 + it.insn.payload.size }.max() ?: 0
         val maxNameWidth = instructions.maxBy { it.insn.name.length }?.insn?.name?.length ?: 0
 
         instructions.forEach { instruction ->
@@ -86,17 +96,19 @@ class Parser(val file: String, val text: String) {
             val insnBytes = insnArray
                 .map { it.toUByte().toString(16).padStart(2, '0') }
 
-            val insnPayload = insnBytes
-                .chunked(2)
-                .map { it.joinToString("") }
-                .joinToString(" ")
+            var i = 0
+            val payloadText = insn.payload.map { arg ->
+                val sub = insnBytes.subList(i, i + arg.type.width)
+                i += arg.type.width
+                sub.joinToString("")
+            }.joinToString(" ")
 
-            val sourceLine = instruction.sourceMap?.let { lines.getOrNull(it.line) } ?: "???"
+            val sourceLine = lines.getOrNull(instruction.location.line)
             logger.debug(
                 "0x${instruction.address.toString(16).padStart(programDigits, '0')}: " +
                     "${insn.name.padEnd(maxNameWidth, ' ')} $opcodeText " +
-                    insnPayload.padEnd(insnBytesTextWidth, ' ') +
-                    " > $sourceLine"
+                    payloadText.padEnd(maxInsnWidth, ' ') +
+                    "> $sourceLine"
             )
 
             if(insnArray.size != insn.payloadWidth)
@@ -105,6 +117,28 @@ class Parser(val file: String, val text: String) {
             buffer.put(insnArray)
         }
         return buffer
+    }
+
+    fun sourceMap(): ByteArray {
+        return buildBytes { buffer ->
+            logger.debug("Writing source map")
+
+            val files = instructions.mapTo(mutableSetOf()) { it.location.file }.toList()
+            val fileIndexes = files.mapIndexed { i, it -> it to i }.associate { it }
+
+            buffer.putUShort(files.size.toUShort())
+            files.forEachIndexed { i, file ->
+                val fileArray = file.toByteArray()
+                buffer.putUShort(fileArray.size.toUShort())
+                buffer.put(fileArray)
+            }
+
+            instructions.forEach { instruction ->
+                buffer.putInt(instruction.address)
+                buffer.putUShort(fileIndexes.getValue(instruction.location.file).toUShort())
+                buffer.putUShort(instruction.location.line.toUShort())
+            }
+        }
     }
 }
 

@@ -1,3 +1,5 @@
+@file:Suppress("ClassName")
+
 package dev.thecodewarrior.kotlincpu.common
 
 import dev.thecodewarrior.kotlincpu.common.util.getUByte
@@ -28,23 +30,18 @@ sealed class DataType<T: Any>(val width: Int) {
         return this.javaClass.simpleName
     }
 
-    object reg: DataType<UByte>(1) {
-        override fun put(buffer: ByteBuffer, value: UByte) {
-            buffer.putUByte(value)
+    object reg: DataType<Register>(1) {
+        override fun put(buffer: ByteBuffer, value: Register) {
+            buffer.putUByte(value.index)
         }
 
-        override fun parse(value: String): UByte? {
-            return registers[value.toLowerCase(Locale.ROOT)]
+        override fun parse(value: String): Register? {
+            return Register[value]
         }
 
-        override fun read(buffer: ByteBuffer): UByte {
-            return buffer.getUByte()
+        override fun read(buffer: ByteBuffer): Register {
+            return Register[buffer.getUByte()]
         }
-
-        private val registers: Map<String, UByte> = mapOf(
-            *(0 .. 15).map { "r$it" to it }.toTypedArray(),
-            "pc" to 0xf0
-        ).mapValues { it.value.toUByte() }
     }
 
     object label: DataType<Any>(4) {
@@ -54,14 +51,14 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): Any? {
-            return if(value.matches(pattern)) value else null
+            return if(value.matches(pattern)) value.removePrefix(":") else null
         }
 
         override fun read(buffer: ByteBuffer): Any {
             return buffer.getUInt()
         }
 
-        private val pattern = "^[a-zA-Z][a-zA-Z0-9]*$".toRegex()
+        private val pattern = "^:[a-zA-Z_][a-zA-Z0-9_]*$".toRegex()
     }
 
     object u8: DataType<UByte>(1) {
@@ -70,8 +67,8 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): UByte? {
-            return if(value.startsWith("#"))
-                value.removePrefix("#").toUByteDetectRadix()
+            return if(value.isNotEmpty() && value[0] in '0'..'9')
+                value.toUByteDetectRadix()
             else
                 null
         }
@@ -87,8 +84,8 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): Byte? {
-            return if(value.startsWith("#"))
-                value.removePrefix("#").toByteDetectRadix()
+            return if(value.isNotEmpty() && value[0] in '0'..'9')
+                value.toByteDetectRadix()
             else
                 null
         }
@@ -104,8 +101,8 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): UShort? {
-            return if(value.startsWith("#"))
-                value.removePrefix("#").toUShortDetectRadix()
+            return if(value.isNotEmpty() && value[0] in '0'..'9')
+                value.toUShortDetectRadix()
             else
                 null
         }
@@ -121,8 +118,8 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): Short? {
-            return if(value.startsWith("#"))
-                value.removePrefix("#").toShortDetectRadix()
+            return if(value.isNotEmpty() && value[0] in '0'..'9')
+                value.toShortDetectRadix()
             else
                 null
         }
@@ -138,8 +135,8 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): UInt? {
-            return if(value.startsWith("#"))
-                value.removePrefix("#").toUIntDetectRadix()
+            return if(value.isNotEmpty() && value[0] in '0'..'9')
+                value.toUIntDetectRadix()
             else
                 null
         }
@@ -155,8 +152,8 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): Int? {
-            return if(value.startsWith("#"))
-                value.removePrefix("#").toIntDetectRadix()
+            return if(value.isNotEmpty() && value[0] in '0'..'9')
+                value.toIntDetectRadix()
             else
                 null
         }
@@ -172,8 +169,8 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): ULong? {
-            return if(value.startsWith("#"))
-                value.removePrefix("#").toULongDetectRadix()
+            return if(value.isNotEmpty() && value[0] in '0'..'9')
+                value.toULongDetectRadix()
             else
                 null
         }
@@ -189,8 +186,8 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): Long? {
-            return if(value.startsWith("#"))
-                value.removePrefix("#").toLongDetectRadix()
+            return if(value.isNotEmpty() && value[0] in '0'..'9')
+                value.toLongDetectRadix()
             else
                 null
         }
@@ -206,8 +203,8 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): Float? {
-            return if(value.startsWith("#"))
-                value.removePrefix("#").toFloat()
+            return if(value.isNotEmpty() && value[0] in '0'..'9')
+                value.toFloat()
             else
                 null
         }
@@ -223,8 +220,8 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): Double? {
-            return if(value.startsWith("#"))
-                value.removePrefix("#").toDouble()
+            return if(value.isNotEmpty() && value[0] in '0'..'9')
+                value.toDouble()
             else
                 null
         }

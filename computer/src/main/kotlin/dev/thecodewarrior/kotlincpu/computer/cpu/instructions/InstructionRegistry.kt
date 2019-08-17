@@ -3,6 +3,7 @@ package dev.thecodewarrior.kotlincpu.computer.cpu.instructions
 import dev.thecodewarrior.kotlincpu.common.Argument
 import dev.thecodewarrior.kotlincpu.common.Insn
 import dev.thecodewarrior.kotlincpu.common.Instructions
+import dev.thecodewarrior.kotlincpu.common.Register
 import dev.thecodewarrior.kotlincpu.computer.cpu.CPU
 import java.nio.ByteBuffer
 
@@ -15,10 +16,10 @@ object InstructionRegistry {
 
     val nop = +insn(Instructions.nop) { _, _ -> }
 
-    val mov_imm = +insn(Instructions.mov_imm) { cpu, (value: UInt, dst: UByte) ->
+    val mov_imm = +insn(Instructions.mov_imm) { cpu, (value: UInt, dst: Register) ->
         cpu.registers[dst] = value
     }
-    val mov_r = +insn(Instructions.mov_r) { cpu, (src: UByte, dst: UByte) ->
+    val mov_r = +insn(Instructions.mov_r) { cpu, (src: Register, dst: Register) ->
         cpu.registers[dst] = cpu.registers[src]
     }
 
@@ -34,72 +35,72 @@ object InstructionRegistry {
 //    val str_r_off_imm = +//Opcode("str_r_off_imm", opcodes.create(), false, reg("src"), reg("address"), u32("offset"))
 //    val str_r_off_r = +//Opcode("str_r_off_r", opcodes.create(), false, reg("src"), reg("address"), reg("offset"))
 
-    val cmp_imm = +insn(Instructions.cmp_imm) { cpu, (left: UByte, right: UInt) ->
+    val cmp_imm = +insn(Instructions.cmp_imm) { cpu, (left: Register, right: UInt) ->
         cpu.flags.comparison = cpu.registers[left].compareTo(right)
     }
-    val cmp_r = +insn(Instructions.cmp_r) { cpu, (left: UByte, right: UByte) ->
+    val cmp_r = +insn(Instructions.cmp_r) { cpu, (left: Register, right: Register) ->
         cpu.flags.comparison = cpu.registers[left].compareTo(cpu.registers[right])
     }
 
     val jmp_imm = +insn(Instructions.jmp_imm) { cpu, (dst: UInt) ->
         cpu.pc = dst
     }
-    val jmp_r = +insn(Instructions.jmp_r) { cpu, (dst: UByte) ->
+    val jmp_r = +insn(Instructions.jmp_r) { cpu, (dst: Register) ->
         cpu.pc = cpu.registers[dst]
     }
 
-    val inc = +insn(Instructions.inc) { cpu, (reg: UByte) ->
+    val inc = +insn(Instructions.inc) { cpu, (reg: Register) ->
         cpu.registers[reg] = cpu.registers[reg] + 1u
     }
-    val dec = +insn(Instructions.dec) { cpu, (reg: UByte) ->
+    val dec = +insn(Instructions.dec) { cpu, (reg: Register) ->
         cpu.registers[reg] = cpu.registers[reg] - 1u
     }
 
-    val add_imm = +insn(Instructions.add_imm) { cpu, (left: UByte, right: UInt, dst: UByte) ->
+    val add_imm = +insn(Instructions.add_imm) { cpu, (left: Register, right: UInt, dst: Register) ->
         cpu.registers[dst] = cpu.registers[left] + right
     }
-    val add_r = +insn(Instructions.add_r) { cpu, (left: UByte, right: UByte, dst: UByte) ->
+    val add_r = +insn(Instructions.add_r) { cpu, (left: Register, right: Register, dst: Register) ->
         cpu.registers[dst] = cpu.registers[left] + cpu.registers[right]
     }
 
-    val sub_imm = +insn(Instructions.sub_imm) { cpu, (left: UByte, right: UInt, dst: UByte) ->
+    val sub_imm = +insn(Instructions.sub_imm) { cpu, (left: Register, right: UInt, dst: Register) ->
         cpu.registers[dst] = cpu.registers[left] - right
     }
-    val sub_r = +insn(Instructions.sub_r) { cpu, (left: UByte, right: UByte, dst: UByte) ->
+    val sub_r = +insn(Instructions.sub_r) { cpu, (left: Register, right: Register, dst: Register) ->
         cpu.registers[dst] = cpu.registers[left] - cpu.registers[right]
     }
 
-    val mul_imm = +insn(Instructions.mul_imm) { cpu, (left: UByte, right: UInt, dst: UByte) ->
+    val mul_imm = +insn(Instructions.mul_imm) { cpu, (left: Register, right: UInt, dst: Register) ->
         cpu.registers[dst] = cpu.registers[left] * right
     }
-    val mul_r = +insn(Instructions.mul_r) { cpu, (left: UByte, right: UByte, dst: UByte) ->
+    val mul_r = +insn(Instructions.mul_r) { cpu, (left: Register, right: Register, dst: Register) ->
         cpu.registers[dst] = cpu.registers[left] * cpu.registers[right]
     }
 
-    val div_imm = +insn(Instructions.div_imm) { cpu, (left: UByte, right: UInt, dst: UByte) ->
+    val div_imm = +insn(Instructions.div_imm) { cpu, (left: Register, right: UInt, dst: Register) ->
         cpu.registers[dst] = cpu.registers[left] / right
     }
-    val div_r = +insn(Instructions.div_r) { cpu, (left: UByte, right: UByte, dst: UByte) ->
+    val div_r = +insn(Instructions.div_r) { cpu, (left: Register, right: Register, dst: Register) ->
         cpu.registers[dst] = cpu.registers[left] / cpu.registers[right]
     }
-    val sdiv_imm = +insn(Instructions.sdiv_imm) { cpu, (left: UByte, right: UInt, dst: UByte) ->
+    val sdiv_imm = +insn(Instructions.sdiv_imm) { cpu, (left: Register, right: UInt, dst: Register) ->
         cpu.registers[dst] = (cpu.registers[left].toInt() / right.toInt()).toUInt()
     }
-    val sdiv_r = +insn(Instructions.sdiv_r) { cpu, (left: UByte, right: UByte, dst: UByte) ->
+    val sdiv_r = +insn(Instructions.sdiv_r) { cpu, (left: Register, right: Register, dst: Register) ->
         cpu.registers[dst] = (cpu.registers[left].toInt() / cpu.registers[right].toInt()).toUInt()
     }
 
-    val mod_imm = +insn(Instructions.mod_imm) { cpu, (left: UByte, right: UInt, dst: UByte) ->
-        cpu.registers[dst] = cpu.registers[left] / right
+    val mod_imm = +insn(Instructions.mod_imm) { cpu, (left: Register, right: UInt, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[left] % right
     }
-    val mod_r = +insn(Instructions.mod_r) { cpu, (left: UByte, right: UByte, dst: UByte) ->
-        cpu.registers[dst] = cpu.registers[left] / cpu.registers[right]
+    val mod_r = +insn(Instructions.mod_r) { cpu, (left: Register, right: Register, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[left] % cpu.registers[right]
     }
-    val smod_imm = +insn(Instructions.smod_imm) { cpu, (left: UByte, right: UInt, dst: UByte) ->
-        cpu.registers[dst] = (cpu.registers[left].toInt() / right.toInt()).toUInt()
+    val smod_imm = +insn(Instructions.smod_imm) { cpu, (left: Register, right: UInt, dst: Register) ->
+        cpu.registers[dst] = (cpu.registers[left].toInt() % right.toInt()).toUInt()
     }
-    val smod_r = +insn(Instructions.smod_r) { cpu, (left: UByte, right: UByte, dst: UByte) ->
-        cpu.registers[dst] = (cpu.registers[left].toInt() / cpu.registers[right].toInt()).toUInt()
+    val smod_r = +insn(Instructions.smod_r) { cpu, (left: Register, right: Register, dst: Register) ->
+        cpu.registers[dst] = (cpu.registers[left].toInt() % cpu.registers[right].toInt()).toUInt()
     }
 
     private val instructionMap = instructions.associateBy { it.insn }
