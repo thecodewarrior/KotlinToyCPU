@@ -10,7 +10,8 @@ class Ticker(val name: String, frequency: Double, var tick: () -> Unit) {
         set(value) {
             if(field == value) return
             field = value
-            restart()
+            if(running)
+                restart()
         }
     private val executor = Executors.newSingleThreadScheduledExecutor {
         val thread = Thread(it, name)

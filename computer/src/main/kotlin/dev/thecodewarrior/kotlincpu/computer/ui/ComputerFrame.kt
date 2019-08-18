@@ -2,10 +2,15 @@ package dev.thecodewarrior.kotlincpu.computer.ui
 
 import dev.thecodewarrior.kotlincpu.computer.cpu.Computer
 import dev.thecodewarrior.kotlincpu.computer.cpu.SourceMap
+import dev.thecodewarrior.kotlincpu.computer.util.FrequencyTracker
 import dev.thecodewarrior.kotlincpu.computer.util.Ticker
 import dev.thecodewarrior.kotlincpu.computer.util.dim
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.awt.FlowLayout
 import java.awt.event.WindowEvent
@@ -19,9 +24,11 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
     val clock = Ticker("CPU Clock", 1.0) {
         step()
     }
+    var frequencyTracker = FrequencyTracker(50, 200)
 
     val cpuStatus = CpuStatusPanel(this)
     val sourceMapPanel = SourceMapPanel(this)
+    val updateChannel = Channel<Unit>()
 
     init {
         title = "Computer"
@@ -35,6 +42,13 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
         size = preferredSize
 
         load()
+
+        launch {
+            for(unused in updateChannel) {
+                cpuStatus.updateData()
+                sourceMapPanel.updateData()
+            }
+        }
     }
 
     fun step() {
@@ -44,8 +58,12 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
             logger.error("Error stepping computer. Stopping clock")
             clock.stop()
         }
-        cpuStatus.updateData()
-        sourceMapPanel.updateData()
+        frequencyTracker.tick()
+        updateData()
+    }
+
+    fun updateData() {
+        updateChannel.offer(Unit)
     }
 
     fun reset() {
@@ -55,8 +73,7 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
         sourceMapPanel.reset()
         computer = Computer()
         load()
-
-        clock.start()
+        updateData()
     }
 
     fun load() {

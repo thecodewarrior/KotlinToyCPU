@@ -15,6 +15,7 @@ import java.awt.Font
 import javax.swing.AbstractListModel
 import javax.swing.GroupLayout
 import javax.swing.JButton
+import javax.swing.JLabel
 import javax.swing.JList
 import javax.swing.JPanel
 import javax.swing.JScrollPane
@@ -22,6 +23,7 @@ import javax.swing.JSpinner
 import javax.swing.JTextArea
 import javax.swing.JToggleButton
 import javax.swing.SpinnerNumberModel
+import kotlin.math.roundToInt
 
 class CpuStatusPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by CoroutineScope(Dispatchers.Main) {
     val cpu: CPU get() = frame.computer.cpu
@@ -44,7 +46,7 @@ class CpuStatusPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
             this.add(button)
         }
 
-    val clockModel = SpinnerNumberModel(1, 1, 1024, 1)
+    val clockModel = SpinnerNumberModel(1, 1, 200_000_000, 1)
     val clockSpeed = JSpinner(clockModel) %
         { spinner ->
             spinner.addChangeListener {
@@ -61,11 +63,17 @@ class CpuStatusPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
             this.add(button)
         }
 
-    val instruction = JTextArea() %
+    val actualFrequency = JLabel("") %
         { label ->
             label.font = Font(Font.MONOSPACED, Font.PLAIN, 12)
-            label.isEditable = false
             this.add(label)
+        }
+
+    val instruction = JTextArea() %
+        { area ->
+            area.font = Font(Font.MONOSPACED, Font.PLAIN, 12)
+            area.isEditable = false
+            this.add(area)
         }
 
     val registersModel = RegistersModel()
@@ -89,6 +97,7 @@ class CpuStatusPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
                     +stepButton
                     +clockSpeed
                     +clockButton
+                    +actualFrequency
                 }
                 +sequential {
                     +instruction
@@ -101,6 +110,7 @@ class CpuStatusPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
                     +stepButton
                     +clockSpeed
                     +clockButton
+                    +actualFrequency
                 }
                 +parallel {
                     +instruction
@@ -125,6 +135,12 @@ class CpuStatusPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
         clockSpeed.isEnabled = true
 
         clockButton.isSelected = frame.clock.running
+        val frequency = frame.frequencyTracker.frequency
+        if(frequency > 1000) {
+            actualFrequency.text = "%3.2f kHz".format(frequency / 1000)
+        } else {
+            actualFrequency.text = "    %3d Hz".format(frequency.roundToInt())
+        }
 
         updateInstructionInfo()
 
