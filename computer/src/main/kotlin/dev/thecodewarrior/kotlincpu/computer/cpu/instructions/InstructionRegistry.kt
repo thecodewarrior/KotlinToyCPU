@@ -5,6 +5,10 @@ import dev.thecodewarrior.kotlincpu.common.Insn
 import dev.thecodewarrior.kotlincpu.common.Instructions
 import dev.thecodewarrior.kotlincpu.common.Register
 import dev.thecodewarrior.kotlincpu.computer.cpu.CPU
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.shorts.Short2ObjectMap
+import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap
 import java.nio.ByteBuffer
 
 object InstructionRegistry {
@@ -103,8 +107,8 @@ object InstructionRegistry {
         cpu.registers[dst] = (cpu.registers[left].toInt() % cpu.registers[right].toInt()).toUInt()
     }
 
-    private val instructionMap = instructions.associateBy { it.insn }
-    fun findInsn(opcode: Insn): Instruction = instructionMap.getValue(opcode)
+    private val instructionMap: Short2ObjectMap<Instruction> = instructions.associateByTo(Short2ObjectOpenHashMap()) { it.insn.opcode.toShort() }
+    fun findInsn(insn: Insn): Instruction = instructionMap.getValue(insn.opcode.toShort())
 
     private operator fun Instruction.unaryPlus(): Instruction {
         instructions.add(this)
@@ -114,20 +118,16 @@ object InstructionRegistry {
     private inline fun insn(insn: Insn, crossinline callback: (CPU, Arguments) -> Unit): Instruction {
         return object : Instruction(insn) {
             override fun run(cpu: CPU, buffer: ByteBuffer) {
-                val arguments = Arguments(insn.payload, insn.payload.associateWith { it.type.read(buffer) })
+                val arguments = Arguments(insn.payload.map { it.type.read(buffer) })
                 callback(cpu, arguments)
             }
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    private class Arguments(private val arguments: List<Argument<*>>, private val map: Map<Argument<*>, Any>) {
-        operator fun <T: Any> get(arg: Argument<T>): T {
-            return map[arg] as T
-        }
-
+    private class Arguments(private val values: List<Any>) {
         operator fun <T: Any> get(index: Int): T {
-            return map[arguments[index]] as T
+            return values[index] as T
         }
 
         operator fun <T: Any> component1(): T = this[0]

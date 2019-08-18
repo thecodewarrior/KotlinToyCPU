@@ -19,9 +19,8 @@ class CPU(val computer: Computer) {
     val programBuffer = ByteBuffer.wrap(computer.memory.buffer.array())
 
     fun step() {
-        var insnAddress = pc.toInt()
+        val insnAddress = pc.toInt()
         try {
-            insnAddress = pc.toInt()
             programBuffer.pos = insnAddress
             val opcode = programBuffer.getUShort()
 

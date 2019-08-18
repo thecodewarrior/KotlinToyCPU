@@ -1,16 +1,16 @@
 package dev.thecodewarrior.kotlincpu.common
 
-enum class Condition(private val _matches: (Int) -> Boolean) {
-    YES({ true }),
-    LT({ it < 0 }),
-    LE({ it <= 0 }),
-    EQ({ it == 0 }),
-    GE({ it >= 0 }),
-    GT({ it > 0 }),
-    NE({ it != 0 }),
-    NO({ false });
+enum class Condition {
+    YES { override fun matches(comparison: Int): Boolean = true },
+    LT { override fun matches(comparison: Int): Boolean = comparison < 0 },
+    LE { override fun matches(comparison: Int): Boolean = comparison <= 0 },
+    EQ { override fun matches(comparison: Int): Boolean = comparison == 0 },
+    GE { override fun matches(comparison: Int): Boolean = comparison >= 0 },
+    GT { override fun matches(comparison: Int): Boolean = comparison > 0 },
+    NE { override fun matches(comparison: Int): Boolean = comparison != 0 },
+    NO { override fun matches(comparison: Int): Boolean = false };
 
-    fun matches(comparison: Int): Boolean = _matches(comparison)
+    abstract fun matches(comparison: Int): Boolean
 
     companion object {
         val CONDITION_BITS: Int = 3

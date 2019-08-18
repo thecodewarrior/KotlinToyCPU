@@ -46,7 +46,7 @@ class CpuStatusPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
             this.add(button)
         }
 
-    val clockModel = SpinnerNumberModel(1, 1, 200_000_000, 1)
+    val clockModel = SpinnerNumberModel(1, 1, 1_000_000_000, 1)
     val clockSpeed = JSpinner(clockModel) %
         { spinner ->
             spinner.addChangeListener {
@@ -136,10 +136,11 @@ class CpuStatusPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
 
         clockButton.isSelected = frame.clock.running
         val frequency = frame.frequencyTracker.frequency
-        if(frequency > 1000) {
-            actualFrequency.text = "%3.2f kHz".format(frequency / 1000)
-        } else {
-            actualFrequency.text = "    %3d Hz".format(frequency.roundToInt())
+
+        actualFrequency.text = when {
+            frequency > 1_000_000 -> "%3.2f MHz".format(frequency / 1_000_000)
+            frequency > 1_000 -> "%3.2f kHz".format(frequency / 1_000)
+            else -> "    %3d Hz".format(frequency.roundToInt())
         }
 
         updateInstructionInfo()
