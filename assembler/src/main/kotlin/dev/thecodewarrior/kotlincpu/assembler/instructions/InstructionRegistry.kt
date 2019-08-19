@@ -42,6 +42,15 @@ internal object InstructionRegistry {
     val mod = +factory("mod", Instructions.mod_imm, Instructions.mod_r)
     val smod = +factory("smod", Instructions.smod_imm, Instructions.smod_r)
 
+    val shl = +factory("shl", Instructions.shl_imm, Instructions.shl_r)
+    val shr = +factory("shr", Instructions.shr_imm, Instructions.shr_r)
+    val sshr = +factory("sshr", Instructions.sshr_imm, Instructions.sshr_r)
+
+    val and = +factory("and", Instructions.and_imm, Instructions.and_r)
+    val or = +factory("or", Instructions.or_imm, Instructions.or_r)
+    val xor = +factory("xor", Instructions.xor_imm, Instructions.xor_r)
+    val not = +factory("not", Instructions.not)
+
     private operator fun InsnFactory.unaryPlus(): InsnFactory {
         factories.add(this)
         return this

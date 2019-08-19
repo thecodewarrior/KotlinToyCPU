@@ -130,6 +130,49 @@ object InstructionRegistry {
         cpu.registers[dst] = (cpu.registers[left].toInt() % cpu.registers[right].toInt()).toUInt()
     }
 
+    val shl_imm = +insn(Instructions.shl_imm) { cpu, (value: Register, shift: UInt, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[value] shl shift.toInt()
+    }
+    val shl_r = +insn(Instructions.shl_r) { cpu, (value: Register, shift: Register, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[value] shl cpu.registers[shift].toInt()
+    }
+
+    val shr_imm = +insn(Instructions.shr_imm) { cpu, (value: Register, shift: UInt, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[value] shr shift.toInt()
+    }
+    val shr_r = +insn(Instructions.shr_r) { cpu, (value: Register, shift: Register, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[value] shr cpu.registers[shift].toInt()
+    }
+    val sshr_imm = +insn(Instructions.sshr_imm) { cpu, (value: Register, shift: UInt, dst: Register) ->
+        cpu.registers[dst] = (cpu.registers[value].toInt() shr shift.toInt()).toUInt()
+    }
+    val sshr_r = +insn(Instructions.sshr_r) { cpu, (value: Register, shift: Register, dst: Register) ->
+        cpu.registers[dst] = (cpu.registers[value].toInt() shr cpu.registers[shift].toInt()).toUInt()
+    }
+
+    val and_imm = +insn(Instructions.and_imm) { cpu, (left: Register, right: UInt, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[left] and right
+    }
+    val and_r = +insn(Instructions.and_r) { cpu, (left: Register, right: Register, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[left] and cpu.registers[right]
+    }
+    val or_imm = +insn(Instructions.or_imm) { cpu, (left: Register, right: UInt, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[left] or right
+    }
+    val or_r = +insn(Instructions.or_r) { cpu, (left: Register, right: Register, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[left] or cpu.registers[right]
+    }
+    val xor_imm = +insn(Instructions.xor_imm) { cpu, (left: Register, right: UInt, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[left] xor right
+    }
+    val xor_r = +insn(Instructions.xor_r) { cpu, (left: Register, right: Register, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[left] xor cpu.registers[right]
+    }
+
+    val not = +insn(Instructions.not) { cpu, (value: Register, dst: Register) ->
+        cpu.registers[dst] = cpu.registers[value].inv()
+    }
+
     private val instructionMap: Short2ObjectMap<Instruction> = instructions.associateByTo(Short2ObjectOpenHashMap()) { it.insn.opcode.toShort() }
     fun findInsn(insn: Insn): Instruction = instructionMap.getValue(insn.opcode.toShort())
 

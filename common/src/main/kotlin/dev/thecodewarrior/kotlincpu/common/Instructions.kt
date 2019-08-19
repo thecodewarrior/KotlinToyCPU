@@ -72,6 +72,23 @@ object Instructions {
     val smod_imm = +Insn("smod_imm", opcodes.create(), reg("left"), u32("right"), reg("dst"))
     val smod_r = +Insn("smod_r", opcodes.create(), reg("left"), reg("right"), reg("dst"))
 
+    val shl_imm = +Insn("shl_imm", opcodes.create(), reg("value"), u32("shift"), reg("dst"))
+    val shl_r = +Insn("shl_r", opcodes.create(), reg("value"), reg("shift"), reg("dst"))
+
+    val shr_imm = +Insn("shr_imm", opcodes.create(), reg("value"), u32("shift"), reg("dst"))
+    val shr_r = +Insn("shr_r", opcodes.create(), reg("value"), reg("shift"), reg("dst"))
+    val sshr_imm = +Insn("sshr_imm", opcodes.create(), reg("value"), u32("shift"), reg("dst"))
+    val sshr_r = +Insn("sshr_r", opcodes.create(), reg("value"), reg("shift"), reg("dst"))
+
+    val and_imm = +Insn("and_imm", opcodes.create(), reg("left"), u32("right"), reg("dst"))
+    val and_r = +Insn("and_r", opcodes.create(), reg("left"), reg("right"), reg("dst"))
+    val or_imm = +Insn("or_imm", opcodes.create(), reg("left"), u32("right"), reg("dst"))
+    val or_r = +Insn("or_r", opcodes.create(), reg("left"), reg("right"), reg("dst"))
+    val xor_imm = +Insn("xor_imm", opcodes.create(), reg("left"), u32("right"), reg("dst"))
+    val xor_r = +Insn("xor_r", opcodes.create(), reg("left"), reg("right"), reg("dst"))
+
+    val not = +Insn("not", opcodes.create(), reg("value"), reg("dst"))
+
     private val instructionsMap = instructions.associateBy { it.opcode }
     fun decode(opcode: UShort): Insn? {
         return instructionsMap[opcode and Insn.OPCODE_MASK]
