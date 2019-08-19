@@ -15,8 +15,6 @@ class MemoryPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Corouti
         add(ramArea)
         preferredSize = dim(1200, 500)
         ramArea.preferredSize = dim(1200, 500)
-        ramArea.viewMode = ViewMode.CODE_MATRIX
-        ramArea.byteGroupSize = 4
     }
 
     fun reset() {
