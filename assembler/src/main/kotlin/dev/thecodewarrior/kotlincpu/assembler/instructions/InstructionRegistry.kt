@@ -16,15 +16,17 @@ internal object InstructionRegistry {
         insn(Instructions.nop) { _, _ -> }
     }
 
-    val mov = +factory("mov", Instructions.mov_imm, Instructions.mov_r)
+    val mov = +factory("mov", Instructions.mov_imm, Instructions.mov_r, Instructions.pseudo_mov_label)
 
     val ldr = +factory("ldr",
-        Instructions.ldr_imm_off_r, Instructions.ldr_imm,
-        Instructions.ldr_r_off_imm, Instructions.ldr_r_off_r, Instructions.ldr_r_off_imm
+        Instructions.ldr_imm, Instructions.ldr_imm_off_r,
+        Instructions.ldr_r, Instructions.ldr_r_off_imm, Instructions.ldr_r_off_r,
+        Instructions.pseudo_ldr_label, Instructions.pseudo_ldr_label_off_r
     )
     val str = +factory("str",
-        Instructions.ldr_imm_off_r, Instructions.ldr_imm,
-        Instructions.ldr_r_off_imm, Instructions.ldr_r_off_r, Instructions.ldr_r_off_imm
+        Instructions.str_imm, Instructions.str_imm_off_r,
+        Instructions.str_r, Instructions.str_r_off_imm, Instructions.str_r_off_r,
+        Instructions.pseudo_str_label, Instructions.pseudo_str_label_off_r
     )
 
     val cmp = +factory("cmp", Instructions.cmp_imm, Instructions.cmp_r)

@@ -1,6 +1,7 @@
 package dev.thecodewarrior.kotlincpu.computer.cpu.instructions
 
 import dev.thecodewarrior.kotlincpu.common.Argument
+import dev.thecodewarrior.kotlincpu.common.DataType
 import dev.thecodewarrior.kotlincpu.common.Insn
 import dev.thecodewarrior.kotlincpu.common.Instructions
 import dev.thecodewarrior.kotlincpu.common.Register
@@ -27,17 +28,39 @@ object InstructionRegistry {
         cpu.registers[dst] = cpu.registers[src]
     }
 
-//    val ldr_imm = +//Opcode("ldr_imm", opcodes.create(), false, reg("dst"), u32("address"))
-//    val ldr_imm_off_r = +//Opcode("ldr_imm_off_r", opcodes.create(), false, reg("dst"), u32("address"), reg("offset"))
-//    val ldr_r = +//Opcode("ldr_r", opcodes.create(), false, reg("dst"), reg("address"))
-//    val ldr_r_off_imm = +//Opcode("ldr_r_off_imm", opcodes.create(), false, reg("dst"), reg("address"), u32("offset"))
-//    val ldr_r_off_r = +//Opcode("ldr_r_off_r", opcodes.create(), false, reg("dst"), reg("address"), reg("offset"))
-//
-//    val str_imm = +//Opcode("str_imm", opcodes.create(), false, reg("src"), u32("address"))
-//    val str_imm_off_r = +//Opcode("str_imm_off_r", opcodes.create(), false, reg("src"), u32("address"), reg("offset"))
-//    val str_r = +//Opcode("str_r", opcodes.create(), false, reg("src"), reg("address"))
-//    val str_r_off_imm = +//Opcode("str_r_off_imm", opcodes.create(), false, reg("src"), reg("address"), u32("offset"))
-//    val str_r_off_r = +//Opcode("str_r_off_r", opcodes.create(), false, reg("src"), reg("address"), reg("offset"))
+    val ldr_imm = +insn(Instructions.ldr_imm) { cpu, (dst: Register, address: UInt) ->
+        cpu.registers[dst] = cpu.computer.memory[address]
+    }
+    val ldr_imm_off_r = +insn(Instructions.ldr_imm_off_r) { cpu, (dst: Register, address: UInt, offset: Register) ->
+        cpu.registers[dst] = cpu.computer.memory[address + cpu.registers[offset]]
+    }
+
+    val ldr_r = +insn(Instructions.ldr_r) { cpu, (dst: Register, address: Register) ->
+        cpu.registers[dst] = cpu.computer.memory[cpu.registers[address]]
+    }
+    val ldr_r_off_imm = +insn(Instructions.ldr_r_off_imm) { cpu, (dst: Register, address: Register, offset: UInt) ->
+        cpu.registers[dst] = cpu.computer.memory[cpu.registers[address] + offset]
+    }
+    val ldr_r_off_r = +insn(Instructions.ldr_r_off_r) { cpu, (dst: Register, address: Register, offset: Register) ->
+        cpu.registers[dst] = cpu.computer.memory[cpu.registers[address] + cpu.registers[offset]]
+    }
+
+    val str_imm = +insn(Instructions.str_imm) { cpu, (src: Register, address: UInt) ->
+        cpu.computer.memory[address] = cpu.registers[src]
+    }
+    val str_imm_off_r = +insn(Instructions.str_imm_off_r) { cpu, (src: Register, address: UInt, offset: Register) ->
+        cpu.computer.memory[address + cpu.registers[offset]] = cpu.registers[src]
+    }
+
+    val str_r = +insn(Instructions.str_r) { cpu, (src: Register, address: Register) ->
+        cpu.computer.memory[cpu.registers[address]] = cpu.registers[src]
+    }
+    val str_r_off_imm = +insn(Instructions.str_r_off_imm) { cpu, (src: Register, address: Register, offset: UInt) ->
+        cpu.computer.memory[cpu.registers[address] + offset] = cpu.registers[src]
+    }
+    val str_r_off_r = +insn(Instructions.str_r_off_r) { cpu, (src: Register, address: Register, offset: Register) ->
+        cpu.computer.memory[cpu.registers[address] + cpu.registers[offset]] = cpu.registers[src]
+    }
 
     val cmp_imm = +insn(Instructions.cmp_imm) { cpu, (left: Register, right: UInt) ->
         cpu.flags.comparison = cpu.registers[left].compareTo(right)
@@ -116,9 +139,10 @@ object InstructionRegistry {
     }
 
     private inline fun insn(insn: Insn, crossinline callback: (CPU, Arguments) -> Unit): Instruction {
+        val payload = insn.payload.filter { it.type !is DataType.asm_const }
         return object : Instruction(insn) {
             override fun run(cpu: CPU, buffer: ByteBuffer) {
-                val arguments = Arguments(insn.payload.map { it.type.read(buffer) })
+                val arguments = Arguments(payload.map { it.type.read(buffer) })
                 callback(cpu, arguments)
             }
         }

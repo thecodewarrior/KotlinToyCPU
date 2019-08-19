@@ -1,6 +1,7 @@
 package dev.thecodewarrior.kotlincpu.common
 
 class Insn(val name: String, val opcode: UShort, vararg payload: Argument<*>) {
+    constructor(pseudo: Insn, vararg payload: Argument<*>): this(pseudo.name, pseudo.opcode, *payload)
     val payload: List<Argument<*>> = mutableListOf(*payload)
 
     val payloadWidth: Int

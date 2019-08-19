@@ -1,5 +1,6 @@
 package dev.thecodewarrior.kotlincpu.common
 
+import dev.thecodewarrior.kotlincpu.common.Arguments.asm_const
 import dev.thecodewarrior.kotlincpu.common.Arguments.reg
 import dev.thecodewarrior.kotlincpu.common.Arguments.label
 import dev.thecodewarrior.kotlincpu.common.Arguments.u8
@@ -21,25 +22,32 @@ object Instructions {
     val nop = +Insn("nop", opcodes.create())
 
     val mov_imm = +Insn("mov_imm", opcodes.create(), u32("value"), reg("dst"))
+    val pseudo_mov_label = Insn(mov_imm, label("value"), reg("dst"))
     val mov_r = +Insn("mov_r", opcodes.create(), reg("src"), reg("dst"))
 
-    val ldr_imm = +Insn("ldr_imm", opcodes.create(), u32("address"), reg("dst"))
-    val ldr_imm_off_r = +Insn("ldr_imm_off_r", opcodes.create(), u32("address"), reg("offset"), reg("dst"))
-    val ldr_r = +Insn("ldr_r", opcodes.create(), reg("address"), reg("dst"))
-    val ldr_r_off_imm = +Insn("ldr_r_off_imm", opcodes.create(), reg("address"), u32("offset"), reg("dst"))
-    val ldr_r_off_r = +Insn("ldr_r_off_r", opcodes.create(), reg("address"), reg("offset"), reg("dst"))
+    val ldr_imm = +Insn("ldr_imm", opcodes.create(), reg("dst"), asm_const("["), u32("address"), asm_const("]"))
+    val ldr_imm_off_r = +Insn("ldr_imm_off_r", opcodes.create(), reg("dst"), asm_const("["), u32("address"), reg("offset"), asm_const("]"))
+    val pseudo_ldr_label = Insn(ldr_imm, reg("dst"), asm_const("["), label("address"), asm_const("]"))
+    val pseudo_ldr_label_off_r = Insn(ldr_imm_off_r, reg("dst"), asm_const("["), label("address"), reg("offset"), asm_const("]"))
 
-    val str_imm = +Insn("str_imm", opcodes.create(), reg("src"), u32("address"))
-    val str_imm_off_r = +Insn("str_imm_off_r", opcodes.create(), reg("src"), u32("address"), reg("offset"))
-    val str_r = +Insn("str_r", opcodes.create(), reg("src"), reg("address"))
-    val str_r_off_imm = +Insn("str_r_off_imm", opcodes.create(), reg("src"), reg("address"), u32("offset"))
-    val str_r_off_r = +Insn("str_r_off_r", opcodes.create(), reg("src"), reg("address"), reg("offset"))
+    val ldr_r = +Insn("ldr_r", opcodes.create(), reg("dst"), asm_const("["), reg("address"), asm_const("]"))
+    val ldr_r_off_imm = +Insn("ldr_r_off_imm", opcodes.create(), reg("dst"), asm_const("["), reg("address"), u32("offset"), asm_const("]"))
+    val ldr_r_off_r = +Insn("ldr_r_off_r", opcodes.create(), reg("dst"), asm_const("["), reg("address"), reg("offset"), asm_const("]"))
+
+    val str_imm = +Insn("str_imm", opcodes.create(), reg("src"), asm_const("["), u32("address"), asm_const("]"))
+    val str_imm_off_r = +Insn("str_imm_off_r", opcodes.create(), reg("src"), asm_const("["), u32("address"), reg("offset"), asm_const("]"))
+    val pseudo_str_label = Insn(str_imm, reg("src"), asm_const("["), label("address"), asm_const("]"))
+    val pseudo_str_label_off_r = Insn(str_imm_off_r, reg("src"), asm_const("["), label("address"), reg("offset"), asm_const("]"))
+
+    val str_r = +Insn("str_r", opcodes.create(), reg("src"), asm_const("["), reg("address"), asm_const("]"))
+    val str_r_off_imm = +Insn("str_r_off_imm", opcodes.create(), reg("src"), asm_const("["), reg("address"), u32("offset"), asm_const("]"))
+    val str_r_off_r = +Insn("str_r_off_r", opcodes.create(), reg("src"), asm_const("["), reg("address"), reg("offset"), asm_const("]"))
 
     val cmp_imm = +Insn("cmp_imm", opcodes.create(), reg("left"), u32("right"))
     val cmp_r = +Insn("cmp_r", opcodes.create(), reg("left"), reg("right"))
 
     val jmp_imm = +Insn("jmp_imm", opcodes.create(), u32("dst"))
-    val pseudo_jmp_label = Insn(jmp_imm.name, jmp_imm.opcode, label("dst"))
+    val pseudo_jmp_label = Insn(jmp_imm, label("dst"))
     val jmp_r = +Insn("jmp_r", opcodes.create(), reg("dst"))
 
     val inc = +Insn("inc", opcodes.create(), reg("reg"))

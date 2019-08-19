@@ -3,20 +3,19 @@
 
 label: <<data>>
 
-mov r0, #712 ; move immediate value 712
-mov r0, #:label ; move address of label
-ldr r0, label ; load data at label
-ldr r0, [#16] ; load data at address 16. Value must be word-aligned (a multiple of 4 bytes)
+mov 712, r0 ; move immediate value 712
+mov :label, r0 ; move address of label
+ldr r0, :label ; load data at label
+ldr r0, [16] ; load data at address 16. Value must be word-aligned (a multiple of 4 bytes)
 ldr r0, [r2] ; load data at the address `r2`
-ldr r0, [pc, #8] ; load data at the address `pc + 8`
+ldr r0, [pc, 8] ; load data at the address `pc + 8`
 ldr r0, [pc, r2] ; load data at the address `pc + r2`
 
 
-
-    cmp r0, #3 ; compare r0 and 3
-    jmp_eq label ; jump if equal
-    mov r0, #712 ; stuff to be skipped
+    cmp r0, 3 ; compare r0 and 3
+    eq? jmp :label ; jump if equal
+    mov 712, r0 ; stuff to be skipped
 label:
-    mov r0, #3
+    mov 3, r0
 
 lt? ldr r0, [pc, r2] ; only execute if comparison resulted in a less than

@@ -1,9 +1,11 @@
 
-.candidate = r5
-.halfCandidate = r2
 .test = r1
+.halfCandidate = r2
+.index = r3
+.candidate = r5
 .latestPrime = r10
 
+mov :end, index
 mov 1, candidate
 next:
     add candidate, 2, candidate
@@ -20,6 +22,10 @@ next:
         inc test
         jmp :test_loop
 success:
-    mov candidate, latestPrime
+    str candidate, [index]
+    ldr latestPrime, [index]
+    add index, 4, index
 failure:
     jmp :next
+
+end: nop

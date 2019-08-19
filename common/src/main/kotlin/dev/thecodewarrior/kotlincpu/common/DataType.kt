@@ -30,6 +30,18 @@ sealed class DataType<T: Any>(val width: Int) {
         return this.javaClass.simpleName
     }
 
+    class asm_const(val constant: String): DataType<Unit>(0) {
+        override fun put(buffer: ByteBuffer, value: Unit) {
+            /* noop */
+        }
+
+        override fun parse(value: String): Unit? {
+            return if(value == constant) Unit else null
+        }
+
+        override fun read(buffer: ByteBuffer) { }
+    }
+
     object reg: DataType<Register>(1) {
         override fun put(buffer: ByteBuffer, value: Register) {
             buffer.putUByte(value.index)
