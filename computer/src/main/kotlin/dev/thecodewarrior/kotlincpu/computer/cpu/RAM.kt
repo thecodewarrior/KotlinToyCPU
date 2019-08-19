@@ -13,7 +13,4 @@ class RAM(val computer: Computer, val size: Int) {
     operator fun set(address: UInt, value: UInt) {
         return buffer.putUInt(address.toInt(), value)
     }
-
-    init {
-    }
 }

@@ -19,6 +19,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:2.12.1")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.12.1")
     implementation("it.unimi.dsi:fastutil:8.1.0")
+    implementation("org.exbin.deltahex:deltahex-swing:0.1.2")
 
     implementation(project(":common"))
 }

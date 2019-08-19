@@ -17,6 +17,10 @@ import java.awt.event.WindowEvent
 import java.awt.event.WindowListener
 import java.io.File
 import javax.swing.JFrame
+import org.exbin.utils.binary_data.ByteArrayEditableData
+import org.exbin.deltahex.swing.CodeArea
+
+
 
 class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope by CoroutineScope(Dispatchers.Main)  {
     var computer: Computer = Computer()
@@ -29,24 +33,30 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
     val cpuStatus = CpuStatusPanel(this)
     val sourceMapPanel = SourceMapPanel(this)
     val updateChannel = Channel<Unit>()
+    val memoryPanel = MemoryPanel(this)
 
     init {
         title = "Computer"
         defaultCloseOperation = EXIT_ON_CLOSE
         setLocationRelativeTo(null)
-        layout = FlowLayout()
+        val layout = FlowLayout()
+        this.layout = layout
+        layout.hgap = 0
+        layout.vgap = 0
 
         add(cpuStatus)
         add(sourceMapPanel)
+        add(memoryPanel)
 
-        size = preferredSize
+        size = dim(1200, 850)
 
-        load()
+        reset()
 
         launch {
             for(unused in updateChannel) {
                 cpuStatus.updateData()
                 sourceMapPanel.updateData()
+                memoryPanel.updateData()
             }
         }
     }
@@ -69,9 +79,11 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
     fun reset() {
         clock.stop()
 
+        computer = Computer()
         cpuStatus.reset()
         sourceMapPanel.reset()
-        computer = Computer()
+        memoryPanel.reset()
+
         load()
         updateData()
     }
