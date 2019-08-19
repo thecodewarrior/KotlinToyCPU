@@ -23,12 +23,12 @@ import org.exbin.deltahex.swing.CodeArea
 
 
 class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope by CoroutineScope(Dispatchers.Main)  {
-    var computer: Computer = Computer()
-
     val clock = Ticker("CPU Clock", 1.0) {
         step()
     }
     var frequencyTracker = FrequencyTracker(50, 200)
+
+    var computer: Computer = Computer(clock)
 
     val cpuStatus = CpuStatusPanel(this)
     val sourceMapPanel = SourceMapPanel(this)
@@ -79,7 +79,7 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
     fun reset() {
         clock.stop()
 
-        computer = Computer()
+        computer = Computer(clock)
         cpuStatus.reset()
         sourceMapPanel.reset()
         memoryPanel.reset()

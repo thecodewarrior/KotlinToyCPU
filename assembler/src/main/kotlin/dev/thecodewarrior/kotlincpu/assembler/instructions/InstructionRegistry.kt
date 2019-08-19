@@ -12,9 +12,9 @@ import java.nio.ByteBuffer
 internal object InstructionRegistry {
     val factories: MutableList<InsnFactory> = mutableListOf()
 
-    val nop = +factory("nop") { _, _ ->
-        insn(Instructions.nop) { _, _ -> }
-    }
+    val nop = +factory("nop", Instructions.nop)
+
+    val halt = +factory("halt", Instructions.halt)
 
     val mov = +factory("mov", Instructions.mov_imm, Instructions.mov_r, Instructions.pseudo_mov_label)
 

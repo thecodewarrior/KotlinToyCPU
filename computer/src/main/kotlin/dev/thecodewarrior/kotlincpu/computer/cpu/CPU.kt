@@ -2,6 +2,7 @@ package dev.thecodewarrior.kotlincpu.computer.cpu
 
 import dev.thecodewarrior.kotlincpu.common.Condition
 import dev.thecodewarrior.kotlincpu.common.Insn
+import dev.thecodewarrior.kotlincpu.common.Instructions
 import dev.thecodewarrior.kotlincpu.common.Register
 import dev.thecodewarrior.kotlincpu.common.util.getUShort
 import dev.thecodewarrior.kotlincpu.common.util.pos
@@ -27,6 +28,11 @@ class CPU(val computer: Computer) {
             val insn = Insn.decode(opcode)
                 ?: error("Unknown opcode 0x${opcode.toString(16).padStart(4, '0')}")
             val condition = Condition.decode(opcode)
+
+            if(insn == Instructions.halt && condition.matches(flags.comparison)) {
+                computer.clock.stop()
+                return
+            }
 
             pc += 2u + insn.payloadWidth.toUInt()
             if(condition.matches(flags.comparison)) {

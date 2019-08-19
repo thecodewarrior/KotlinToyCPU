@@ -9,6 +9,7 @@ import dev.thecodewarrior.kotlincpu.computer.util.extensions.rem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.awt.BorderLayout
+import java.awt.FlowLayout
 import java.awt.Font
 import java.awt.Point
 import java.awt.Rectangle
@@ -56,6 +57,12 @@ class SourceMapPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
 
     init {
         this.add(sourceScroll)
+
+        val layout = FlowLayout()
+        this.layout = layout
+        layout.hgap = 0
+        layout.vgap = 0
+
         preferredSize = dim(600, 390)
         minimumSize = preferredSize
 

@@ -23,6 +23,7 @@ object InstructionRegistry {
 //        }
 
     val nop = +insn(Instructions.nop) { _, _ -> }
+    val halt = +insn(Instructions.halt) { _, _ -> }
 
     val mov_imm = +insn(Instructions.mov_imm) { cpu, (value: UInt, dest: Register) ->
         cpu.registers[dest] = value

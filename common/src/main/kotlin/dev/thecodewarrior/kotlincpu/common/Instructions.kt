@@ -24,6 +24,12 @@ object Instructions {
             %op%: nop
                   No-op
         """.trimIndent()
+    val halt = +Insn("halt", opcodes.create()) %
+        """
+            %op%: halt
+                  Halt program execution. When this instruction is executed the clock will stop and the 
+                  program counter will not advance
+        """.trimIndent()
 
 
     val mov_imm = +Insn("mov_imm", opcodes.create(), u32("value"), reg("dest")) %

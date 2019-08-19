@@ -2,11 +2,12 @@ package dev.thecodewarrior.kotlincpu.computer.cpu
 
 import dev.thecodewarrior.kotlincpu.common.Register
 import dev.thecodewarrior.kotlincpu.computer.util.MiB
+import dev.thecodewarrior.kotlincpu.computer.util.Ticker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.nio.ByteBuffer
 
-class Computer : CoroutineScope by CoroutineScope(Dispatchers.Default) {
+class Computer(val clock: Ticker) : CoroutineScope by CoroutineScope(Dispatchers.Default) {
     val memory = RAM(this, 64 * MiB)
     val cpu = CPU(this)
 
