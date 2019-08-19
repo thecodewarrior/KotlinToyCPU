@@ -48,7 +48,7 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
         add(sourceMapPanel)
         add(memoryPanel)
 
-        size = dim(1200, 850)
+        size = dim(1200, 890)
 
         reset()
 

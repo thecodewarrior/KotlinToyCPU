@@ -19,3 +19,10 @@ label:
     mov 3, r0
 
 lt? ldr r0, [pc, r2] ; only execute if comparison resulted in a less than
+
+
+subroutine convention:
+- parameters are pushed onto the stack in the order they are defined
+    (pushing in definition order, popping in reverse definition order)
+- return values are pushed onto the stack in the order they are defined
+    (pushing in definition order, popping in reverse definition order)

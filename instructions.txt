@@ -1,0 +1,198 @@
+0000: nop
+      No operation
+
+0001: mov value, dest ; u32, reg 
+      Move a constant into a register
+
+0002: mov src, dest ; reg, reg 
+      Move one register's value into another register
+
+0003: ldr dest [ address ] ; reg [ u32 ] 
+      Load a value from a fixed address
+
+0004: ldr dest [ address, offset ] ; reg [ u32, reg ] 
+      Load a value from a fixed address with the offset stored in the offset register
+
+0005: ldr dest [ address ] ; reg [ reg ] 
+      Load a value from the address stored in a register
+
+0006: ldr dest [ address, offset ] ; reg [ reg, i32 ] 
+      Load a value from the address stored in a register with a fixed offset
+
+0007: ldr dest [ address, offset ] ; reg [ reg, reg ] 
+      Load a value from the address stored in a register with the offset stored in the offset register
+
+0008: str src [ address ] ; reg [ u32 ] 
+      Store a value at a fixed address
+
+0009: str src [ address, offset ] ; reg [ u32, reg ] 
+      Store a value at a fixed address with the offset stored in the offset register
+
+000a: str src [ address ] ; reg [ reg ] 
+      Store a value at the address stored in a register
+
+000b: str src [ address, offset ] ; reg [ reg, i32 ] 
+      Store a value at the address stored in a register with a fixed offset
+
+000c: str src [ address, offset ] ; reg [ reg, reg ] 
+      Store a value at the address stored in a register with the offset stored in the offset register
+
+000d: cmp left, right ; reg, u32 
+      Compare a register's value with a constant value
+
+000e: cmp left, right ; reg, reg 
+      Compare a register's value with another register's value
+
+000f: jmp dest ; u32 
+      Jump to a constant address
+
+0010: jmp dest ; reg 
+      Jump to the address in a register
+
+0011: call subroutine ; u32 
+      Jump to a constant address, placing the return address in the link register 
+
+0012: call subroutine ; reg 
+      Jump to the address in a register, placing the return address in the link register 
+
+0013: inc reg ; reg 
+      Increment the value in a register
+
+0014: dec reg ; reg 
+      Decrement the value in a register
+
+0015: add left, right, dest ; reg, u32, reg 
+      Add a constant value to the value in a register
+
+0016: add left, right, dest ; reg, reg, reg 
+      Add the values of two registers
+
+0017: sub left, right, dest ; reg, u32, reg 
+      Subtract a constant value to from value in a register
+
+0018: sub left, right, dest ; reg, reg, reg 
+      Subtract the values of two registers
+
+0019: mul left, right, dest ; reg, u32, reg 
+      Multiply the value in a register by a constant
+
+001a: mul left, right, dest ; reg, reg, reg 
+      Multiply the values of two registers
+
+001b: div left, right, dest ; reg, u32, reg 
+      Divide the value in a register by a constant (unsigned)
+
+001c: div left, right, dest ; reg, reg, reg 
+      Divide the values of two registers (unsigned)
+
+001d: sdiv left, right, dest ; reg, u32, reg 
+      Divide the value in a register by a constant (signed)
+
+001e: sdiv left, right, dest ; reg, reg, reg 
+      Divide the values of two registers (signed)
+
+001f: mod left, right, dest ; reg, u32, reg 
+      Get the modulo of the value in a register and a constant (unsigned)
+
+0020: mod left, right, dest ; reg, reg, reg 
+      Get the modulo of the values of two registers (unsigned)
+
+0021: smod left, right, dest ; reg, u32, reg 
+      Get the modulo of the value in a register and a constant (signed)
+
+0022: smod left, right, dest ; reg, reg, reg 
+      Get the modulo of the values of two registers (signed)
+
+0023: shl value, shift, dest ; reg, u32, reg 
+      Shift the bits of a register left by a constant value
+
+0024: shl value, shift, dest ; reg, reg, reg 
+      Shift the bits of a register left by the value in a register
+
+0025: shr value, shift, dest ; reg, u32, reg 
+      Shift the bits of a register right by a constant value (unsigned)
+
+0026: shr value, shift, dest ; reg, reg, reg 
+      Shift the bits of a register right by the value in a register (unsigned)
+
+0027: sshr value, shift, dest ; reg, u32, reg 
+      Shift the bits of a register right by a constant value (signed)
+
+0028: sshr value, shift, dest ; reg, reg, reg 
+      Shift the bits of a register right by the value in a register (signed)
+
+0029: and left, right, dest ; reg, u32, reg 
+      Perform a bitwise AND between the value in a register and a constant
+
+002a: and left, right, dest ; reg, reg, reg 
+      Perform a bitwise AND between the values in two registers
+
+002b: or left, right, dest ; reg, u32, reg 
+      Perform a bitwise OR between the value in a register and a constant
+
+002c: or left, right, dest ; reg, reg, reg 
+      Perform a bitwise OR between the values in two registers
+
+002d: xor left, right, dest ; reg, u32, reg 
+      Perform a bitwise XOR between the value in a register and a constant
+
+002e: xor left, right, dest ; reg, reg, reg 
+      Perform a bitwise XOR between the values in two registers
+
+002f: not value, dest ; reg, reg 
+      Invert the bits of a register
+
+0030: push value1 ; reg 
+      Push the value in a register onto the stack
+
+0031: push value1, value2 ; reg, reg 
+      Push the values in two register onto the stack
+
+0032: push value1, value2, value3 ; reg, reg, reg 
+      Push the values in three register onto the stack
+
+0033: push value1, value2, value3, value4 ; reg, reg, reg, reg 
+      Push the values in four register onto the stack
+
+0034: push value1, value2, value3, value4, value5 ; reg, reg, reg, reg, reg 
+      Push the values in five register onto the stack
+
+0035: pop dest1 ; reg 
+      Pop one value off the stack
+
+0036: pop dest1, dest2 ; reg, reg 
+      Pop two values off the stack
+
+0037: pop dest1, dest2, dest3 ; reg, reg, reg 
+      Pop three values off the stack
+
+0038: pop dest1, dest2, dest3, dest4 ; reg, reg, reg, reg 
+      Pop four values off the stack
+
+0039: pop dest1, dest2, dest3, dest4, dest5 ; reg, reg, reg, reg, reg 
+      Pop five values off the stack
+
+003a: peek dest ; reg 
+      Peek the value at the top of the stack
+
+003b: mkframe ; 
+      Create a stack frame, storing the current frame pointer immediately before the new frame pointer
+
+003c: mkframe count ; u32 
+      Create a stack frame, including the top N stack elements in the newly created frame, and
+      storing the current frame pointer immediately before the new frame pointer
+
+003d: mkframe count ; reg 
+      Create a stack frame, including the top N stack elements in the newly created frame, and
+      storing the current frame pointer immediately before the new frame pointer
+
+003e: rmframe ; 
+      Remove a stack frame, restoring the old frame pointer 
+
+003f: rmframe count ; u32 
+      Remove a stack frame, leaving the bottom N frame elements at the top of the previous stack frame,
+      and restoring the old frame pointer 
+
+0040: rmframe count ; reg 
+      Remove a stack frame, leaving the bottom N frame elements at the top of the previous stack frame,
+      and restoring the old frame pointer 

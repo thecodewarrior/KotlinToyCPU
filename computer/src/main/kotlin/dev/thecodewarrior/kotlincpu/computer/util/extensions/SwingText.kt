@@ -20,15 +20,19 @@ fun JTextComponent.lineBounds(line: Int): Rectangle? {
     if(line < 0 || this.document.defaultRootElement.elementCount <= line)
         return null
     val element = this.document.defaultRootElement.getElement(line)
-    val startRect = this.modelToView(element.startOffset) ?: return null
-    val endRect = this.modelToView(element.endOffset) ?: return null
-    val min = veci(min(startRect.x, endRect.x), min(startRect.y, endRect.y))
-    val max = veci(
-        max(startRect.x + startRect.width, endRect.x + endRect.width),
-        max(startRect.y + startRect.height, endRect.y + endRect.height)
-    )
-    val size = max - min
-    return Rectangle(min.x, min.y, size.x, size.y)
+    try {
+        val startRect = this.modelToView(element.startOffset) ?: return null
+        val endRect = this.modelToView(element.endOffset) ?: return null
+        val min = veci(min(startRect.x, endRect.x), min(startRect.y, endRect.y))
+        val max = veci(
+            max(startRect.x + startRect.width, endRect.x + endRect.width),
+            max(startRect.y + startRect.height, endRect.y + endRect.height)
+        )
+        val size = max - min
+        return Rectangle(min.x, min.y, size.x, size.y)
+    } catch(e: BadLocationException) {
+        return null
+    }
 }
 
 // source: https://tips4java.wordpress.com/2009/05/23/text-component-line-number/

@@ -2,6 +2,23 @@ package dev.thecodewarrior.kotlincpu.common
 
 class Insn(val name: String, val opcode: UShort, vararg payload: Argument<*>) {
     constructor(pseudo: Insn, vararg payload: Argument<*>): this(pseudo.name, pseudo.opcode, *payload)
+
+    val argsHelp: String = run {
+        fun needsComma(index: Int): Boolean {
+            if(payload[index].type is DataType.asm_const) return false
+            if(index + 1 >= payload.size || payload[index + 1].type is DataType.asm_const) return false
+            return true
+        }
+
+        "${payload.mapIndexed { i, it ->
+            it.name + if(needsComma(i)) ", " else " "
+        }.joinToString("")}; ${payload.mapIndexed { i, it ->
+            (if(it.type is DataType.asm_const) it.name else "${it.type}") + if(needsComma(i)) ", " else " "
+        }.joinToString("")}"
+    }
+
+    var help: String = "${opcode.toString(16).padStart(4, '0')}: $name $argsHelp"
+
     val payload: List<Argument<*>> = mutableListOf(*payload)
 
     val payloadWidth: Int

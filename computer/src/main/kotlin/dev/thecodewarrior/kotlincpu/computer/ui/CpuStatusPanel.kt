@@ -2,6 +2,7 @@ package dev.thecodewarrior.kotlincpu.computer.ui
 
 import dev.thecodewarrior.kotlincpu.common.Condition
 import dev.thecodewarrior.kotlincpu.common.Insn
+import dev.thecodewarrior.kotlincpu.common.Register
 import dev.thecodewarrior.kotlincpu.common.util.getUShort
 import dev.thecodewarrior.kotlincpu.computer.cpu.CPU
 import dev.thecodewarrior.kotlincpu.computer.cpu.Computer
@@ -121,7 +122,7 @@ class CpuStatusPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
 
         updateData()
 
-        preferredSize = dim(600, 350)
+        preferredSize = dim(600, 390)
         minimumSize = preferredSize
     }
 
@@ -184,13 +185,12 @@ class CpuStatusPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
     }
 
     inner class RegistersModel: AbstractListModel<String>() {
+        val maxNameWidth = Register.values().map { it.name.length }.max() ?: 0
         override fun getElementAt(index: Int): String {
             val cpu = cpu
-            val maxIndexWidth = (cpu.registers.count - 1).toString().length
 
-            val indexText = index.toString().padStart(maxIndexWidth)
             val valueHex = cpu.registers[index].toString(16).padStart(8, '0')
-            return "$indexText : 0x$valueHex"
+            return "${Register.values()[index].name.padStart(maxNameWidth)} : 0x$valueHex"
         }
 
         override fun getSize(): Int {

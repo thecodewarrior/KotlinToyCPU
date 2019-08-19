@@ -96,7 +96,7 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): Byte? {
-            return if(value.isNotEmpty() && value[0] in '0'..'9')
+            return if(value.isNotEmpty() && (value[0] == '-' || value[0] in '0'..'9'))
                 value.toByteDetectRadix()
             else
                 null
@@ -130,7 +130,7 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): Short? {
-            return if(value.isNotEmpty() && value[0] in '0'..'9')
+            return if(value.isNotEmpty() && (value[0] == '-' || value[0] in '0'..'9'))
                 value.toShortDetectRadix()
             else
                 null
@@ -164,7 +164,7 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): Int? {
-            return if(value.isNotEmpty() && value[0] in '0'..'9')
+            return if(value.isNotEmpty() && (value[0] == '-' || value[0] in '0'..'9'))
                 value.toIntDetectRadix()
             else
                 null
@@ -198,7 +198,7 @@ sealed class DataType<T: Any>(val width: Int) {
         }
 
         override fun parse(value: String): Long? {
-            return if(value.isNotEmpty() && value[0] in '0'..'9')
+            return if(value.isNotEmpty() && (value[0] == '-' || value[0] in '0'..'9'))
                 value.toLongDetectRadix()
             else
                 null

@@ -56,7 +56,7 @@ class SourceMapPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
 
     init {
         this.add(sourceScroll)
-        preferredSize = dim(600, 350)
+        preferredSize = dim(600, 390)
         minimumSize = preferredSize
 
         sourceScroll.preferredSize = preferredSize

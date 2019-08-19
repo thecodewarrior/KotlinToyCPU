@@ -31,6 +31,7 @@ internal object InstructionRegistry {
 
     val cmp = +factory("cmp", Instructions.cmp_imm, Instructions.cmp_r)
     val jmp = +factory("jmp", Instructions.jmp_imm, Instructions.jmp_r, Instructions.pseudo_jmp_label)
+    val call = +factory("call", Instructions.call_imm, Instructions.call_r, Instructions.pseudo_call_label)
 
     val inc = +factory("inc", Instructions.inc)
     val dec = +factory("dec", Instructions.dec)
@@ -50,6 +51,15 @@ internal object InstructionRegistry {
     val or = +factory("or", Instructions.or_imm, Instructions.or_r)
     val xor = +factory("xor", Instructions.xor_imm, Instructions.xor_r)
     val not = +factory("not", Instructions.not)
+
+
+    val push = +factory("push", Instructions.push5, Instructions.push4, Instructions.push3, Instructions.push2, Instructions.push1)
+    val pop = +factory("pop", Instructions.pop5, Instructions.pop4, Instructions.pop3, Instructions.pop2, Instructions.pop1)
+
+    val peek = +factory("peek", Instructions.peek)
+
+    val mkframe = +factory("mkframe", Instructions.mkframe_keep_imm, Instructions.mkframe_keep_r, Instructions.mkframe)
+    val rmframe = +factory("rmframe", Instructions.rmframe_keep_imm, Instructions.rmframe_keep_r, Instructions.rmframe)
 
     private operator fun InsnFactory.unaryPlus(): InsnFactory {
         factories.add(this)

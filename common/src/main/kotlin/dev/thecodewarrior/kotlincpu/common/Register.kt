@@ -17,6 +17,9 @@ enum class Register {
     r13,
     r14,
     r15,
+    sp,
+    fp,
+    lr,
     pc;
 
     val index = ordinal.toUByte()
