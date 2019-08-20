@@ -22,7 +22,11 @@ lt? ldr r0, [pc, r2] ; only execute if comparison resulted in a less than
 
 
 subroutine convention:
-- parameters are pushed onto the stack in the order they are defined
-    (pushing in definition order, popping in reverse definition order)
-- return values are pushed onto the stack in the order they are defined
-    (pushing in definition order, popping in reverse definition order)
+- any registers beyond r0-3 must be pushed to the stack and restored by the subroutine
+- r0-3 must be pushed and restored by the caller if they are important
+
+- if fewer than four parameters are passed, they are passed in r0-3 (r0-3 may be modified by the subroutine)
+- otherwise, parameters are pushed onto the stack in the order they are defined
+
+- if fewer than four values are returned, they are returned in r0-3
+- otherwise, return values are pushed onto the stack in the order they are defined
