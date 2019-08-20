@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
     Main // start app
     val frame = ComputerFrame(File(args[0]))
-    frame.isVisible = true
+    frame.open()
     Main.computers.add(frame)
 }
 

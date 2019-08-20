@@ -18,8 +18,14 @@ class CPU(val computer: Computer) {
         set(value) { registers[Register.pc] = value }
 
     val programBuffer = ByteBuffer.wrap(computer.memory.buffer.array())
+    var status: Status = Status.RUNNING
 
     fun step() {
+        if(status == Status.WAITING) {
+            if(computer.clock.running)
+                computer.clock.stop()
+            return
+        }
         val insnAddress = pc.toInt()
         try {
             programBuffer.pos = insnAddress
@@ -31,6 +37,7 @@ class CPU(val computer: Computer) {
 
             if(insn == Instructions.halt && condition.matches(flags.comparison)) {
                 computer.clock.stop()
+                status = Status.HALTED
                 return
             }
 
@@ -40,8 +47,13 @@ class CPU(val computer: Computer) {
             }
         } catch(e: Exception) {
             logger.error("Error at 0x${insnAddress.toString(16)}", e)
+            status = Status.ERROR
             throw e
         }
+    }
+
+    enum class Status {
+        RUNNING, WAITING, HALTED, ERROR
     }
 }
 

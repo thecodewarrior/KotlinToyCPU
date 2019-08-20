@@ -17,10 +17,6 @@ import java.nio.ByteBuffer
 
 object InstructionRegistry {
     val instructions: MutableList<Instruction> = mutableListOf()
-//        SimpleInsn("NOP", 0x0u, 0u) { _, _ -> },
-//        SimpleInsn("HALT", 0xFFFFu, 0u) { cpu, _ ->
-//            cpu.computer.running = false
-//        }
 
     val nop = +insn(Instructions.nop) { _, _ -> }
     val halt = +insn(Instructions.halt) { _, _ -> }
@@ -320,6 +316,13 @@ object InstructionRegistry {
             cpu.computer.memory[origin - i * 4u] = cpu.computer.memory[origin - (i + 1u) * 4u]
         }
         cpu.registers[sp] = origin - count * 4u
+    }
+
+    val pcall_imm = +insn(Instructions.pcall_imm) { cpu, (pid: UInt) ->
+        cpu.computer.peripherals[pid]?.call()
+    }
+    val pcall_r = +insn(Instructions.pcall_r) { cpu, (pid: Register) ->
+        cpu.computer.peripherals[cpu.registers[pid]]?.call()
     }
 
     private val instructionMap: Short2ObjectMap<Instruction> = instructions.associateByTo(Short2ObjectOpenHashMap()) { it.insn.opcode.toShort() }

@@ -61,6 +61,8 @@ internal object InstructionRegistry {
     val mkframe = +factory("mkframe", Instructions.mkframe_keep_imm, Instructions.mkframe_keep_r, Instructions.mkframe)
     val rmframe = +factory("rmframe", Instructions.rmframe_keep_imm, Instructions.rmframe_keep_r, Instructions.rmframe)
 
+    val pcall = +factory("pcall", Instructions.pcall_imm, Instructions.pcall_r)
+
     private operator fun InsnFactory.unaryPlus(): InsnFactory {
         factories.add(this)
         return this

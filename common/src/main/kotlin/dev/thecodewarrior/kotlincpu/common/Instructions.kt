@@ -413,6 +413,17 @@ object Instructions {
                   and restoring the old frame pointer 
         """.trimIndent()
 
+    val pcall_imm = +Insn("pcall_imm", opcodes.create(), u32("pid")) %
+        """
+            %op%: pcall %args%
+                  Call into a peripheral device
+        """.trimIndent()
+    val pcall_r = +Insn("pcall_r", opcodes.create(), reg("pid")) %
+        """
+            %op%: pcall %args%
+                  Call into a peripheral device
+        """.trimIndent()
+
     private val instructionsMap = instructions.associateBy { it.opcode }
     fun decode(opcode: UShort): Insn? {
         return instructionsMap[opcode and Insn.OPCODE_MASK]

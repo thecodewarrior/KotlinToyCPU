@@ -10,6 +10,7 @@ import java.nio.ByteBuffer
 class Computer(val clock: Ticker) : CoroutineScope by CoroutineScope(Dispatchers.Default) {
     val memory = RAM(this, 64 * MiB)
     val cpu = CPU(this)
+    val peripherals = Peripherals(this)
 
     init {
         cpu.registers[Register.sp] = (memory.size - 4).toUInt()
@@ -23,6 +24,6 @@ class Computer(val clock: Ticker) : CoroutineScope by CoroutineScope(Dispatchers
 
     fun step() {
         cpu.step()
+        peripherals.step()
     }
-
 }

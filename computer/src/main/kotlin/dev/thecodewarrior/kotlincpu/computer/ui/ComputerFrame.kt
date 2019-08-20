@@ -35,6 +35,8 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
     val updateChannel = Channel<Unit>()
     val memoryPanel = MemoryPanel(this)
 
+    val logFrame = LogDisplayFrame(computer)
+
     init {
         title = "Computer"
         defaultCloseOperation = EXIT_ON_CLOSE
@@ -57,8 +59,14 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
                 cpuStatus.updateData()
                 sourceMapPanel.updateData()
                 memoryPanel.updateData()
+                logFrame.updateData()
             }
         }
+    }
+
+    fun open() {
+        isVisible = true
+        logFrame.isVisible = true
     }
 
     fun step() {
@@ -80,9 +88,14 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
         clock.stop()
 
         computer = Computer(clock)
+
         cpuStatus.reset()
         sourceMapPanel.reset()
         memoryPanel.reset()
+
+        computer.peripherals[0u] = logFrame
+        logFrame.computer = computer
+        logFrame.reset()
 
         load()
         updateData()
@@ -98,12 +111,15 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
 
     override fun windowClosed(e: WindowEvent?) {
         clock.stop()
+        logFrame.isVisible = false
+        logFrame.dispose()
     }
     override fun windowDeiconified(e: WindowEvent?) {}
     override fun windowClosing(e: WindowEvent?) {}
     override fun windowActivated(e: WindowEvent?) {}
     override fun windowDeactivated(e: WindowEvent?) {}
-    override fun windowOpened(e: WindowEvent?) {}
+    override fun windowOpened(e: WindowEvent?) {
+    }
     override fun windowIconified(e: WindowEvent?) {}
 
 }
