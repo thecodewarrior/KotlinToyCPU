@@ -27,5 +27,8 @@ abstract class Instruction(val insn: Insn) {
      */
     var condition: Condition = Condition.YES
 
+    open val width: Int
+        get() = insn.payloadWidth
+
     abstract fun push(buffer: ByteBuffer, parser: Parser)
 }

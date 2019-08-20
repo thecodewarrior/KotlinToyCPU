@@ -28,7 +28,7 @@ import javax.swing.text.DefaultStyledDocument
 import javax.swing.text.SimpleAttributeSet
 
 class LogDisplayFrame(override var computer: Computer): JFrame(), Peripheral, CoroutineScope by CoroutineScope(Dispatchers.Main) {
-    val output = Channel<Char>(64 * KiB)
+    val output = Channel<String>(64 * KiB)
 
     val logDocument = DefaultStyledDocument()
     val log = JTextPane() %
@@ -43,8 +43,8 @@ class LogDisplayFrame(override var computer: Computer): JFrame(), Peripheral, Co
         add(scroll)
 
         launch {
-            for(character in output) {
-                logDocument.insertString(logDocument.length, "$character", SimpleAttributeSet.EMPTY)
+            for(string in output) {
+                logDocument.insertString(logDocument.length, string, SimpleAttributeSet.EMPTY)
             }
         }
     }
@@ -60,7 +60,7 @@ class LogDisplayFrame(override var computer: Computer): JFrame(), Peripheral, Co
     override fun call() {
         val command = computer.cpu.registers[r0]
         when(command) {
-            0u -> output.offer(computer.cpu.registers[r1].toInt().toChar())
+            0u -> output.offer("${computer.cpu.registers[r1].toInt().toChar()}")
         }
     }
 

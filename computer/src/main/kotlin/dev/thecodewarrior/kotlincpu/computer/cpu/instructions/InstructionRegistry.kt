@@ -3,6 +3,7 @@
 package dev.thecodewarrior.kotlincpu.computer.cpu.instructions
 
 import dev.thecodewarrior.kotlincpu.common.Argument
+import dev.thecodewarrior.kotlincpu.common.DataSize
 import dev.thecodewarrior.kotlincpu.common.DataType
 import dev.thecodewarrior.kotlincpu.common.Insn
 import dev.thecodewarrior.kotlincpu.common.Instructions
@@ -28,38 +29,38 @@ object InstructionRegistry {
         cpu.registers[dest] = cpu.registers[src]
     }
 
-    val ldr_imm = +insn(Instructions.ldr_imm) { cpu, (dest: Register, address: UInt) ->
-        cpu.registers[dest] = cpu.computer.memory[address]
+    val ldr_imm = +insn(Instructions.ldr_imm) { cpu, (size: DataSize, dest: Register, address: UInt) ->
+        cpu.registers[dest] = cpu.computer.memory[address, size]
     }
-    val ldr_imm_off_r = +insn(Instructions.ldr_imm_off_r) { cpu, (dest: Register, address: UInt, offset: Register) ->
-        cpu.registers[dest] = cpu.computer.memory[address + cpu.registers[offset]]
-    }
-
-    val ldr_r = +insn(Instructions.ldr_r) { cpu, (dest: Register, address: Register) ->
-        cpu.registers[dest] = cpu.computer.memory[cpu.registers[address]]
-    }
-    val ldr_r_off_imm = +insn(Instructions.ldr_r_off_imm) { cpu, (dest: Register, address: Register, offset: Int) ->
-        cpu.registers[dest] = cpu.computer.memory[(cpu.registers[address].toInt() + offset).toUInt()]
-    }
-    val ldr_r_off_r = +insn(Instructions.ldr_r_off_r) { cpu, (dest: Register, address: Register, offset: Register) ->
-        cpu.registers[dest] = cpu.computer.memory[cpu.registers[address] + cpu.registers[offset]]
+    val ldr_imm_off_r = +insn(Instructions.ldr_imm_off_r) { cpu, (size: DataSize, dest: Register, address: UInt, offset: Register) ->
+        cpu.registers[dest] = cpu.computer.memory[address + cpu.registers[offset], size]
     }
 
-    val str_imm = +insn(Instructions.str_imm) { cpu, (src: Register, address: UInt) ->
-        cpu.computer.memory[address] = cpu.registers[src]
+    val ldr_r = +insn(Instructions.ldr_r) { cpu, (size: DataSize, dest: Register, address: Register) ->
+        cpu.registers[dest] = cpu.computer.memory[cpu.registers[address], size]
     }
-    val str_imm_off_r = +insn(Instructions.str_imm_off_r) { cpu, (src: Register, address: UInt, offset: Register) ->
-        cpu.computer.memory[address + cpu.registers[offset]] = cpu.registers[src]
+    val ldr_r_off_imm = +insn(Instructions.ldr_r_off_imm) { cpu, (size: DataSize, dest: Register, address: Register, offset: Int) ->
+        cpu.registers[dest] = cpu.computer.memory[(cpu.registers[address].toInt() + offset).toUInt(), size]
+    }
+    val ldr_r_off_r = +insn(Instructions.ldr_r_off_r) { cpu, (size: DataSize, dest: Register, address: Register, offset: Register) ->
+        cpu.registers[dest] = cpu.computer.memory[cpu.registers[address] + cpu.registers[offset], size]
     }
 
-    val str_r = +insn(Instructions.str_r) { cpu, (src: Register, address: Register) ->
-        cpu.computer.memory[cpu.registers[address]] = cpu.registers[src]
+    val str_imm = +insn(Instructions.str_imm) { cpu, (size: DataSize, src: Register, address: UInt) ->
+        cpu.computer.memory[address, size] = cpu.registers[src]
     }
-    val str_r_off_imm = +insn(Instructions.str_r_off_imm) { cpu, (src: Register, address: Register, offset: Int) ->
-        cpu.computer.memory[(cpu.registers[address].toInt() + offset).toUInt()] = cpu.registers[src]
+    val str_imm_off_r = +insn(Instructions.str_imm_off_r) { cpu, (size: DataSize, src: Register, address: UInt, offset: Register) ->
+        cpu.computer.memory[address + cpu.registers[offset], size] = cpu.registers[src]
     }
-    val str_r_off_r = +insn(Instructions.str_r_off_r) { cpu, (src: Register, address: Register, offset: Register) ->
-        cpu.computer.memory[cpu.registers[address] + cpu.registers[offset]] = cpu.registers[src]
+
+    val str_r = +insn(Instructions.str_r) { cpu, (size: DataSize, src: Register, address: Register) ->
+        cpu.computer.memory[cpu.registers[address], size] = cpu.registers[src]
+    }
+    val str_r_off_imm = +insn(Instructions.str_r_off_imm) { cpu, (size: DataSize, src: Register, address: Register, offset: Int) ->
+        cpu.computer.memory[(cpu.registers[address].toInt() + offset).toUInt(), size] = cpu.registers[src]
+    }
+    val str_r_off_r = +insn(Instructions.str_r_off_r) { cpu, (size: DataSize, src: Register, address: Register, offset: Register) ->
+        cpu.computer.memory[cpu.registers[address] + cpu.registers[offset], size] = cpu.registers[src]
     }
 
     val cmp_imm = +insn(Instructions.cmp_imm) { cpu, (left: Register, right: UInt) ->

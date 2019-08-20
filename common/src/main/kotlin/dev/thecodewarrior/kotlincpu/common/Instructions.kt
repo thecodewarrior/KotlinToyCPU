@@ -1,5 +1,6 @@
 package dev.thecodewarrior.kotlincpu.common
 
+import dev.thecodewarrior.kotlincpu.common.Arguments.enum
 import dev.thecodewarrior.kotlincpu.common.Arguments.asm_const
 import dev.thecodewarrior.kotlincpu.common.Arguments.reg
 import dev.thecodewarrior.kotlincpu.common.Arguments.label
@@ -19,6 +20,11 @@ object Instructions {
 
     val instructions = mutableListOf<Insn>()
 
+    val pseudo_data = +Insn("pseudo_data", 0u) %
+        """
+             N/A : %data type ... ; enum ...
+                  Arbitrary data
+        """.trimIndent()
     val nop = +Insn("nop", opcodes.create()) %
         """
             %op%: nop
@@ -48,75 +54,75 @@ object Instructions {
                   Move one register's value into another register
         """.trimIndent()
 
-    val ldr_imm = +Insn("ldr_imm", opcodes.create(), reg("dest"), asm_const("["), u32("address"), asm_const("]")) %
+    val ldr_imm = +Insn("ldr_imm", opcodes.create(), enum("size", DataSize.WORD), reg("dest"), asm_const("["), u32("address"), asm_const("]")) %
         """
             %op%: ldr %args%
                   Load a value from a fixed address
         """.trimIndent()
-    val ldr_imm_off_r = +Insn("ldr_imm_off_r", opcodes.create(), reg("dest"), asm_const("["), u32("address"), reg("offset"), asm_const("]")) %
+    val ldr_imm_off_r = +Insn("ldr_imm_off_r", opcodes.create(), enum("size", DataSize.WORD), reg("dest"), asm_const("["), u32("address"), reg("offset"), asm_const("]")) %
         """
             %op%: ldr %args%
                   Load a value from a fixed address with the offset stored in the offset register
         """.trimIndent()
-    val pseudo_ldr_label = Insn(ldr_imm, reg("dest"), asm_const("["), label("address"), asm_const("]")) %
+    val pseudo_ldr_label = Insn(ldr_imm, enum("size", DataSize.WORD), reg("dest"), asm_const("["), label("address"), asm_const("]")) %
         """
             %op%: ldr %args%
                   Load a value from the label's location
         """.trimIndent()
-    val pseudo_ldr_label_off_r = Insn(ldr_imm_off_r, reg("dest"), asm_const("["), label("address"), reg("offset"), asm_const("]")) %
+    val pseudo_ldr_label_off_r = Insn(ldr_imm_off_r, enum("size", DataSize.WORD), reg("dest"), asm_const("["), label("address"), reg("offset"), asm_const("]")) %
         """
             %op%: ldr %args%
                   Load a value from the label's location with the offset stored in the offset register
         """.trimIndent()
 
-    val ldr_r = +Insn("ldr_r", opcodes.create(), reg("dest"), asm_const("["), reg("address"), asm_const("]")) %
+    val ldr_r = +Insn("ldr_r", opcodes.create(), enum("size", DataSize.WORD), reg("dest"), asm_const("["), reg("address"), asm_const("]")) %
         """
             %op%: ldr %args%
                   Load a value from the address stored in a register
         """.trimIndent()
-    val ldr_r_off_imm = +Insn("ldr_r_off_imm", opcodes.create(), reg("dest"), asm_const("["), reg("address"), i32("offset"), asm_const("]")) %
+    val ldr_r_off_imm = +Insn("ldr_r_off_imm", opcodes.create(), enum("size", DataSize.WORD), reg("dest"), asm_const("["), reg("address"), i32("offset"), asm_const("]")) %
         """
             %op%: ldr %args%
                   Load a value from the address stored in a register with a fixed offset
         """.trimIndent()
-    val ldr_r_off_r = +Insn("ldr_r_off_r", opcodes.create(), reg("dest"), asm_const("["), reg("address"), reg("offset"), asm_const("]")) %
+    val ldr_r_off_r = +Insn("ldr_r_off_r", opcodes.create(), enum("size", DataSize.WORD), reg("dest"), asm_const("["), reg("address"), reg("offset"), asm_const("]")) %
         """
             %op%: ldr %args%
                   Load a value from the address stored in a register with the offset stored in the offset register
         """.trimIndent()
 
-    val str_imm = +Insn("str_imm", opcodes.create(), reg("src"), asm_const("["), u32("address"), asm_const("]")) %
+    val str_imm = +Insn("str_imm", opcodes.create(), enum("size", DataSize.WORD), reg("src"), asm_const("["), u32("address"), asm_const("]")) %
         """
             %op%: str %args%
                   Store a value at a fixed address
         """.trimIndent()
-    val str_imm_off_r = +Insn("str_imm_off_r", opcodes.create(), reg("src"), asm_const("["), u32("address"), reg("offset"), asm_const("]")) %
+    val str_imm_off_r = +Insn("str_imm_off_r", opcodes.create(), enum("size", DataSize.WORD), reg("src"), asm_const("["), u32("address"), reg("offset"), asm_const("]")) %
         """
             %op%: str %args%
                   Store a value at a fixed address with the offset stored in the offset register
         """.trimIndent()
-    val pseudo_str_label = Insn(str_imm, reg("src"), asm_const("["), label("address"), asm_const("]")) %
+    val pseudo_str_label = Insn(str_imm, enum("size", DataSize.WORD), reg("src"), asm_const("["), label("address"), asm_const("]")) %
         """
             %op%: str %args%
                   Store a value at the label's location
         """.trimIndent()
-    val pseudo_str_label_off_r = Insn(str_imm_off_r, reg("src"), asm_const("["), label("address"), reg("offset"), asm_const("]")) %
+    val pseudo_str_label_off_r = Insn(str_imm_off_r, enum("size", DataSize.WORD), reg("src"), asm_const("["), label("address"), reg("offset"), asm_const("]")) %
         """
             %op%: str %args%
                   Store a value at the label's location with the offset stored in the offset register
         """.trimIndent()
 
-    val str_r = +Insn("str_r", opcodes.create(), reg("src"), asm_const("["), reg("address"), asm_const("]")) %
+    val str_r = +Insn("str_r", opcodes.create(), enum("size", DataSize.WORD), reg("src"), asm_const("["), reg("address"), asm_const("]")) %
         """
             %op%: str %args%
                   Store a value at the address stored in a register
         """.trimIndent()
-    val str_r_off_imm = +Insn("str_r_off_imm", opcodes.create(), reg("src"), asm_const("["), reg("address"), i32("offset"), asm_const("]")) %
+    val str_r_off_imm = +Insn("str_r_off_imm", opcodes.create(), enum("size", DataSize.WORD), reg("src"), asm_const("["), reg("address"), i32("offset"), asm_const("]")) %
         """
             %op%: str %args%
                   Store a value at the address stored in a register with a fixed offset
         """.trimIndent()
-    val str_r_off_r = +Insn("str_r_off_r", opcodes.create(), reg("src"), asm_const("["), reg("address"), reg("offset"), asm_const("]")) %
+    val str_r_off_r = +Insn("str_r_off_r", opcodes.create(), enum("size", DataSize.WORD), reg("src"), asm_const("["), reg("address"), reg("offset"), asm_const("]")) %
         """
             %op%: str %args%
                   Store a value at the address stored in a register with the offset stored in the offset register
@@ -450,4 +456,3 @@ object Instructions {
         }
     }
 }
-

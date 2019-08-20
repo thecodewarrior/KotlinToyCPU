@@ -22,12 +22,29 @@ import java.nio.ByteBuffer
 import java.util.Locale
 
 sealed class DataType<T: Any>(val width: Int) {
+    open val default: T? = null
     abstract fun put(buffer: ByteBuffer, value: T)
     abstract fun parse(value: String): T?
     abstract fun read(buffer: ByteBuffer): T
 
     override fun toString(): String {
         return this.javaClass.simpleName
+    }
+
+    class enum<T: Enum<T>>(val type: Class<T>): DataType<T>(1) {
+        private val values: Map<String, T> = type.enumConstants.associate { it.toString().toLowerCase() to it }
+
+        override fun put(buffer: ByteBuffer, value: T) {
+            buffer.putUByte(value.ordinal.toUByte())
+        }
+
+        override fun parse(value: String): T? {
+            return values[value.toLowerCase()]
+        }
+
+        override fun read(buffer: ByteBuffer): T {
+            return type.enumConstants[buffer.getUByte().toInt()]
+        }
     }
 
     class asm_const(val constant: String): DataType<Unit>(0) {

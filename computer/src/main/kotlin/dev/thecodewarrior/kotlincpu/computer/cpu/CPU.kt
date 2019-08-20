@@ -22,8 +22,6 @@ class CPU(val computer: Computer) {
 
     fun step() {
         if(status == Status.WAITING) {
-            if(computer.clock.running)
-                computer.clock.stop()
             return
         }
         val insnAddress = pc.toInt()

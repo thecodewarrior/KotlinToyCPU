@@ -63,6 +63,8 @@ internal object InstructionRegistry {
 
     val pcall = +factory("pcall", Instructions.pcall_imm, Instructions.pcall_r)
 
+    val data = +DataInsnFactory
+
     private operator fun InsnFactory.unaryPlus(): InsnFactory {
         factories.add(this)
         return this
@@ -89,17 +91,24 @@ internal object InstructionRegistry {
                 val start = tokenizer.index
                 val line = tokenizer.peek().line
 
-                for(opcode in opcodes) {
+                val values = mutableListOf<Any>()
+                opcodes@ for(opcode in opcodes) {
                     tokenizer.index = start
-                    val values = opcode.payload.mapNotNull {
+                    values.clear()
+
+                    for(argument in opcode.payload) {
                         if(tokenizer.eof()) {
-                            null
+                            continue@opcodes
                         } else {
-                            var token = tokenizer.pop()
+                            var token = tokenizer.peek()
                             val variable = parser.context.variables[token.value]
                             if(variable != null)
                                 token = variable[0]
-                            it.type.parse(token.value)
+
+                            val parsed = argument.type.parse(token.value)
+                            if(parsed != null) tokenizer.pop()
+
+                            values.add(parsed ?: argument.default ?: continue@opcodes)
                         }
                     }
                     if(values.size == opcode.payload.size) { // all the elements passed the non-null test

@@ -7,6 +7,8 @@ import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Token
 import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Tokenizer
 import dev.thecodewarrior.kotlincpu.assembler.util.buildBytes
 import dev.thecodewarrior.kotlincpu.common.Condition
+import dev.thecodewarrior.kotlincpu.common.DataType
+import dev.thecodewarrior.kotlincpu.common.Instructions
 import dev.thecodewarrior.kotlincpu.common.util.putUInt
 import dev.thecodewarrior.kotlincpu.common.util.putUShort
 import org.slf4j.LoggerFactory
@@ -78,12 +80,12 @@ class Parser(val file: String, val text: String) {
     fun write(): ByteBuffer {
         val lines = text.lines()
 
-        val size = instructions.sumBy { 2 + it.insn.payloadWidth }
+        val size = instructions.sumBy { 2 + it.width }
         val buffer = ByteBuffer.allocate(size)
         logger.debug("Writing instructions")
 
         val programDigits = (instructions.lastOrNull()?.address ?: 0).toString(16).length
-        val maxInsnWidth = instructions.map { it.insn.payloadWidth * 2 + it.insn.payload.size }.max() ?: 0
+        val maxInsnWidth = instructions.map { it.insn.payloadWidth * 2 + it.insn.payload.filter { it.type !is DataType.asm_const }.size }.max() ?: 0
         val maxNameWidth = instructions.maxBy { it.insn.name.length }?.insn?.name?.length ?: 0
 
         instructions.forEach { instruction ->
@@ -92,28 +94,34 @@ class Parser(val file: String, val text: String) {
 
             val insnArray = buildBytes { instruction.push(it, this)  }
 
-            val opcodeText = opcode.toString(16).padStart(4, '0')
-            val insnBytes = insnArray
-                .map { it.toUByte().toString(16).padStart(2, '0') }
+            if(insn != Instructions.pseudo_data) {
+                val opcodeText = opcode.toString(16).padStart(4, '0')
+                val insnBytes = insnArray
+                    .map { it.toUByte().toString(16).padStart(2, '0') }
 
-            var i = 0
-            val payloadText = insn.payload.map { arg ->
-                val sub = insnBytes.subList(i, i + arg.type.width)
-                i += arg.type.width
-                sub.joinToString("")
-            }.joinToString(" ")
+                var i = 0
+                val payloadText = insn.payload
+                    .filter { it.type !is DataType.asm_const }
+                    .map { arg ->
+                        val sub = insnBytes.subList(i, i + arg.type.width)
+                        i += arg.type.width
+                        sub.joinToString("")
+                    }
+                    .joinToString(" ")
 
-            val sourceLine = lines.getOrNull(instruction.location.line)
-            logger.debug(
-                "0x${instruction.address.toString(16).padStart(programDigits, '0')}: " +
-                    "${insn.name.padEnd(maxNameWidth, ' ')} $opcodeText " +
-                    payloadText.padEnd(maxInsnWidth, ' ') +
-                    "> $sourceLine"
-            )
+                val sourceLine = lines.getOrNull(instruction.location.line)
+                logger.debug(
+                    "0x${instruction.address.toString(16).padStart(programDigits, '0')}: " +
+                        "${insn.name.padEnd(maxNameWidth, ' ')} $opcodeText " +
+                        payloadText.padEnd(maxInsnWidth, ' ') +
+                        "> $sourceLine"
+                )
+            }
 
-            if(insnArray.size != insn.payloadWidth)
-                error("Expected size ${insn.payloadWidth} is not actual size ${insnArray.size}")
-            buffer.putUShort(opcode)
+            if(insnArray.size != instruction.width)
+                error("Expected size ${instruction.width} is not actual size ${insnArray.size}")
+            if(insn != Instructions.pseudo_data)
+                buffer.putUShort(opcode)
             buffer.put(insnArray)
         }
         return buffer

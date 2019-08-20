@@ -20,7 +20,7 @@ class Tokenizer(data: String) {
 
     init {
         val initialWhitespacePattern = Pattern.compile("^\\s*")
-        val tokenPattern = Pattern.compile("""("[^"]*"|[\[\]]|[^\s,\[\]]+)(,?\s*)""")
+        val tokenPattern = Pattern.compile("""("[^"]*"|[\[\]]|'?[^\s,\[\]']+)(,?\s*)""")
 
         val lines = data.split("\\r?\\n".toRegex())
         for (lineNum in lines.indices) {

@@ -2,7 +2,7 @@
 
 package dev.thecodewarrior.kotlincpu.common
 
-class Argument<T: Any>(val name: String, val type: DataType<T>) {
+class Argument<T: Any>(val name: String, val type: DataType<T>, val default: T? = null) {
     override fun toString(): String {
         return "$type('$name')"
     }
@@ -27,6 +27,8 @@ class Argument<T: Any>(val name: String, val type: DataType<T>) {
 }
 
 object Arguments {
+    inline fun <reified T: Enum<T>> enum(name: String): Argument<T> = Argument(name, DataType.enum(T::class.java))
+    fun <T: Enum<T>> enum(name: String, default: T): Argument<T> = Argument(name, DataType.enum(default.javaClass), default)
     fun asm_const(constant: String): Argument<Unit> = Argument(constant, DataType.asm_const(constant))
     fun reg(name: String): Argument<Register> = Argument(name, DataType.reg)
     fun label(name: String): Argument<Any> = Argument(name, DataType.label)
