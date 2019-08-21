@@ -18,7 +18,8 @@ next:
     add candidate, 2, candidate
     div candidate, 2, halfCandidate
 
-    mov :end, index
+    mov :program_end, index
+
     test_loop:
         ldr test, [index]
         cmp test, halfCandidate
@@ -30,6 +31,8 @@ next:
         add index, 4, index
         jmp :test_loop
 success:
+    mov :found_message, r0
+    pcall PTEXT, PRINT_ASCIIZ
     push r0, r1, r2, r3
     mov candidate, r0
     call :print_hex
@@ -40,4 +43,4 @@ success:
 failure:
     jmp :next
 
-end: nop
+found_message: %data .asciiz "Found a prime: "

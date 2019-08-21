@@ -15,7 +15,12 @@ fun main(args: Array<String>) {
 
     val assembler = Assembler()
     assemblyOrder.loadOrder.forEach {
-        assembler.parse(it)
+        try {
+            assembler.parse(it)
+        } catch (e: Exception) {
+            logger.error("Error parsing $it")
+            throw e
+        }
     }
     assembler.finish()
 

@@ -319,11 +319,18 @@ object InstructionRegistry {
         cpu.registers[sp] = origin - count * 4u
     }
 
-    val pcall_imm = +insn(Instructions.pcall_imm) { cpu, (pid: UInt) ->
-        cpu.computer.peripherals[pid]?.call()
+    val pcall_imm_imm = +insn(Instructions.pcall_imm_imm) { cpu, (pid: UInt, function: UInt) ->
+        cpu.computer.peripherals[pid]?.call(function)
     }
-    val pcall_r = +insn(Instructions.pcall_r) { cpu, (pid: Register) ->
-        cpu.computer.peripherals[cpu.registers[pid]]?.call()
+    val pcall_r_imm = +insn(Instructions.pcall_r_imm) { cpu, (pid: Register, function: UInt) ->
+        cpu.computer.peripherals[cpu.registers[pid]]?.call(function)
+    }
+
+    val pcall_imm_r = +insn(Instructions.pcall_imm_r) { cpu, (pid: UInt, function: Register) ->
+        cpu.computer.peripherals[pid]?.call(cpu.registers[function])
+    }
+    val pcall_r_r = +insn(Instructions.pcall_r_r) { cpu, (pid: Register, function: Register) ->
+        cpu.computer.peripherals[cpu.registers[pid]]?.call(cpu.registers[function])
     }
 
     private val instructionMap: Short2ObjectMap<Instruction> = instructions.associateByTo(Short2ObjectOpenHashMap()) { it.insn.opcode.toShort() }

@@ -11,4 +11,8 @@ class AssemblyFile(val file: File) {
         .map {
             file.resolveSibling(it.removePrefix("#include").trim())
         }
+
+    override fun toString(): String {
+        return name
+    }
 }

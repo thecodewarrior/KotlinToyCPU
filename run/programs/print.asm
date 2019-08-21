@@ -1,59 +1,56 @@
+#include log.asm
 
-print:
-    mov r0, r1
-    mov 0, r0
-    pcall 0
-    mov lr, pc
+; pcall PTEXT, PRINT_CHAR
+; pcall PTEXT, PRINT_ASCIIZ
+; pcall PTEXT, PRINT_FMT
 
 println:
-    mov 0xA, r1
-    mov 0, r0
-    pcall 0
+    mov 0xA, r0
+    pcall PTEXT, PRINT_CHAR
     mov lr, pc
 
 print_hex:
-    mov r0, r2
-    mov 0, r0
+    mov r0, r1
 
-    shr r2, 28, r1
-    and r1, 0xf, r1
-    ldr'b r1 [:print_hex_digits, r1]
-    pcall 0
+    shr r1, 28, r0
+    and r0, 0xf, r0
+    ldr'b r0 [:print_hex_digits, r0]
+    pcall PTEXT, PRINT_CHAR
 
-    shr r2, 24, r1
-    and r1, 0xf, r1
-    ldr'b r1 [:print_hex_digits, r1]
-    pcall 0
+    shr r1, 24, r0
+    and r0, 0xf, r0
+    ldr'b r0 [:print_hex_digits, r0]
+    pcall PTEXT, PRINT_CHAR
 
-    shr r2, 20, r1
-    and r1, 0xf, r1
-    ldr'b r1 [:print_hex_digits, r1]
-    pcall 0
+    shr r1, 20, r0
+    and r0, 0xf, r0
+    ldr'b r0 [:print_hex_digits, r0]
+    pcall PTEXT, PRINT_CHAR
 
-    shr r2, 16, r1
-    and r1, 0xf, r1
-    ldr'b r1 [:print_hex_digits, r1]
-    pcall 0
+    shr r1, 16, r0
+    and r0, 0xf, r0
+    ldr'b r0 [:print_hex_digits, r0]
+    pcall PTEXT, PRINT_CHAR
 
-    shr r2, 12, r1
-    and r1, 0xf, r1
-    ldr'b r1 [:print_hex_digits, r1]
-    pcall 0
+    shr r1, 12, r0
+    and r0, 0xf, r0
+    ldr'b r0 [:print_hex_digits, r0]
+    pcall PTEXT, PRINT_CHAR
 
-    shr r2, 8, r1
-    and r1, 0xf, r1
-    ldr'b r1 [:print_hex_digits, r1]
-    pcall 0
+    shr r1, 8, r0
+    and r0, 0xf, r0
+    ldr'b r0 [:print_hex_digits, r0]
+    pcall PTEXT, PRINT_CHAR
 
-    shr r2, 4, r1
-    and r1, 0xf, r1
-    ldr'b r1 [:print_hex_digits, r1]
-    pcall 0
+    shr r1, 4, r0
+    and r0, 0xf, r0
+    ldr'b r0 [:print_hex_digits, r0]
+    pcall PTEXT, PRINT_CHAR
 
-    shr r2, 0, r1
-    and r1, 0xf, r1
-    ldr'b r1 [:print_hex_digits, r1]
-    pcall 0
+    shr r1, 0, r0
+    and r0, 0xf, r0
+    ldr'b r0 [:print_hex_digits, r0]
+    pcall PTEXT, PRINT_CHAR
 
     mov lr, pc
 

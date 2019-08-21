@@ -425,12 +425,22 @@ object Instructions {
                   and restoring the old frame pointer 
         """.trimIndent()
 
-    val pcall_imm = +Insn("pcall_imm", opcodes.create(), u32("pid")) %
+    val pcall_imm_imm = +Insn("pcall_imm_imm", opcodes.create(), u32("pid"), u32("function")) %
         """
             %op%: pcall %args%
                   Call into a peripheral device
         """.trimIndent()
-    val pcall_r = +Insn("pcall_r", opcodes.create(), reg("pid")) %
+    val pcall_r_imm = +Insn("pcall_r_imm", opcodes.create(), reg("pid"), u32("function")) %
+        """
+            %op%: pcall %args%
+                  Call into a peripheral device
+        """.trimIndent()
+    val pcall_imm_r = +Insn("pcall_imm_r", opcodes.create(), u32("pid"), reg("function")) %
+        """
+            %op%: pcall %args%
+                  Call into a peripheral device
+        """.trimIndent()
+    val pcall_r_r = +Insn("pcall_r_r", opcodes.create(), reg("pid"), reg("function")) %
         """
             %op%: pcall %args%
                   Call into a peripheral device

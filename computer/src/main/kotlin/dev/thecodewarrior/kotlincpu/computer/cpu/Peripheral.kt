@@ -4,7 +4,7 @@ import dev.thecodewarrior.kotlincpu.common.Register
 
 interface Peripheral {
     val computer: Computer
-    fun call()
+    fun call(function: UInt)
     fun step()
 
     val registers: Registers
