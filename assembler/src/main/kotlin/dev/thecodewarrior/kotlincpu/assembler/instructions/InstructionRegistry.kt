@@ -1,12 +1,11 @@
 package dev.thecodewarrior.kotlincpu.assembler.instructions
 
-import dev.thecodewarrior.kotlincpu.assembler.Parser
+import dev.thecodewarrior.kotlincpu.assembler.Assembler
 import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Tokenizer
 import dev.thecodewarrior.kotlincpu.common.Argument
 import dev.thecodewarrior.kotlincpu.common.DataType
 import dev.thecodewarrior.kotlincpu.common.Insn
 import dev.thecodewarrior.kotlincpu.common.Instructions
-import dev.thecodewarrior.kotlincpu.common.Register
 import java.nio.ByteBuffer
 
 internal object InstructionRegistry {
@@ -70,16 +69,16 @@ internal object InstructionRegistry {
         return this
     }
 
-    private inline fun factory(name: String, crossinline callback: (parser: Parser, tokenizer: Tokenizer) -> Instruction): InsnFactory {
+    private inline fun factory(name: String, crossinline callback: (assembler: Assembler, tokenizer: Tokenizer) -> Instruction): InsnFactory {
         return object : InsnFactory(name) {
-            override fun parse(parser: Parser, tokenizer: Tokenizer): Instruction = callback(parser, tokenizer)
+            override fun parse(assembler: Assembler, tokenizer: Tokenizer): Instruction = callback(assembler, tokenizer)
         }
     }
 
-    private inline fun insn(opcode: Insn, crossinline payload: (buffer: ByteBuffer, parser: Parser) -> Unit): Instruction {
+    private inline fun insn(opcode: Insn, crossinline payload: (buffer: ByteBuffer, assembler: Assembler) -> Unit): Instruction {
         return object : Instruction(opcode) {
-            override fun push(buffer: ByteBuffer, parser: Parser) {
-                payload(buffer, parser)
+            override fun push(buffer: ByteBuffer, assembler: Assembler) {
+                payload(buffer, assembler)
             }
         }
     }
@@ -87,7 +86,7 @@ internal object InstructionRegistry {
     private fun factory(name: String, vararg _opcodes: Insn): InsnFactory {
         val opcodes = _opcodes.toList()
         return object : InsnFactory(name) {
-            override fun parse(parser: Parser, tokenizer: Tokenizer): Instruction {
+            override fun parse(assembler: Assembler, tokenizer: Tokenizer): Instruction {
                 val start = tokenizer.index
                 val line = tokenizer.peek().line
 
@@ -101,7 +100,7 @@ internal object InstructionRegistry {
                             continue@opcodes
                         } else {
                             var token = tokenizer.peek()
-                            val variable = parser.context.variables[token.value]
+                            val variable = assembler.context.variables[token.value]
                             if(variable != null)
                                 token = variable[0]
 
@@ -113,7 +112,7 @@ internal object InstructionRegistry {
                     }
                     if(values.size == opcode.payload.size) { // all the elements passed the non-null test
                         return object : Instruction(opcode) {
-                            override fun push(buffer: ByteBuffer, parser: Parser) {
+                            override fun push(buffer: ByteBuffer, assembler: Assembler) {
                                 opcode.payload.zip(values) { argument, value ->
                                     val resolved = when {
                                         argument.type == DataType.label -> {

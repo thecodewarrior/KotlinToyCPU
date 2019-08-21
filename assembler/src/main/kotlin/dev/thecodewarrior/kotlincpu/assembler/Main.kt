@@ -9,12 +9,18 @@ fun main(args: Array<String>) {
         File(args[1]).writeText(Instructions.instructions.joinToString("\n\n") { it.help })
         return
     }
-    val text = File(args[0]).readText()
-    val sourceMapFile = File(args[0]).toRelativeString(File(args[1]).parentFile)
-    val parser = Parser(sourceMapFile, text)
-    val out = parser.write()
-    File(args[1]).writeBytes(out.array())
-    File(args[1] + ".map").writeBytes(parser.sourceMap())
+
+    val assemblyOrder = AssemblyOrder()
+    assemblyOrder.add(File(args[0]))
+
+    val assembler = Assembler()
+    assemblyOrder.loadOrder.forEach {
+        assembler.parse(it)
+    }
+    assembler.finish()
+
+    File(args[1]).writeBytes(assembler.write().array())
+    File(args[1] + ".map").writeBytes(assembler.sourceMap())
 }
 
 private val logger = LoggerFactory.getLogger("main")

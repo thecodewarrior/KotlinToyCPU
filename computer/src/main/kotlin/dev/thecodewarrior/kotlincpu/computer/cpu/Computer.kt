@@ -1,6 +1,7 @@
 package dev.thecodewarrior.kotlincpu.computer.cpu
 
 import dev.thecodewarrior.kotlincpu.common.Register
+import dev.thecodewarrior.kotlincpu.common.util.getUInt
 import dev.thecodewarrior.kotlincpu.computer.util.MiB
 import dev.thecodewarrior.kotlincpu.computer.util.Ticker
 import kotlinx.coroutines.CoroutineScope
@@ -17,9 +18,11 @@ class Computer(val clock: Ticker) : CoroutineScope by CoroutineScope(Dispatchers
         cpu.registers[Register.fp] = cpu.registers[Register.sp]
     }
 
-    fun loadProgram(program: ByteBuffer) {
+    fun loadProgram(program: ByteArray) {
+        memory.buffer.rewind()
         memory.buffer.put(program)
         memory.buffer.rewind()
+        cpu.pc = memory.buffer.getUInt(0)
     }
 
     fun step() {

@@ -1,7 +1,7 @@
 package dev.thecodewarrior.kotlincpu.assembler.instructions
 
 import dev.thecodewarrior.kotlincpu.assembler.Context
-import dev.thecodewarrior.kotlincpu.assembler.Parser
+import dev.thecodewarrior.kotlincpu.assembler.Assembler
 import dev.thecodewarrior.kotlincpu.common.Condition
 import dev.thecodewarrior.kotlincpu.common.Insn
 import java.nio.ByteBuffer
@@ -28,7 +28,7 @@ abstract class Instruction(val insn: Insn) {
     var condition: Condition = Condition.YES
 
     open val width: Int
-        get() = insn.payloadWidth
+        get() = insn.payloadWidth + 2
 
-    abstract fun push(buffer: ByteBuffer, parser: Parser)
+    abstract fun push(buffer: ByteBuffer, assembler: Assembler)
 }

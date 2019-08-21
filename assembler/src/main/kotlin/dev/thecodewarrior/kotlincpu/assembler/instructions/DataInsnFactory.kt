@@ -1,17 +1,15 @@
 package dev.thecodewarrior.kotlincpu.assembler.instructions
 
-import dev.thecodewarrior.kotlincpu.assembler.Parser
+import dev.thecodewarrior.kotlincpu.assembler.Assembler
 import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Tokenizer
 import dev.thecodewarrior.kotlincpu.assembler.util.buildBytes
 import dev.thecodewarrior.kotlincpu.assembler.util.multiReplace
 import dev.thecodewarrior.kotlincpu.common.DataType
 import dev.thecodewarrior.kotlincpu.common.Instructions
-import dev.thecodewarrior.kotlincpu.common.util.toByteDetectRadix
-import dev.thecodewarrior.kotlincpu.common.util.toUByteDetectRadix
 import java.nio.ByteBuffer
 
 object DataInsnFactory: InsnFactory("%data") {
-    override fun parse(parser: Parser, tokenizer: Tokenizer): Instruction {
+    override fun parse(assembler: Assembler, tokenizer: Tokenizer): Instruction {
         val type = tokenizer.pop().value
         val value: ByteArray
 
@@ -74,7 +72,7 @@ object DataInsnFactory: InsnFactory("%data") {
         override val width: Int
             get() = data.size
 
-        override fun push(buffer: ByteBuffer, parser: Parser) {
+        override fun push(buffer: ByteBuffer, assembler: Assembler) {
             buffer.put(data)
         }
     }

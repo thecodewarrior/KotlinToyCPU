@@ -13,6 +13,7 @@ import java.awt.FlowLayout
 import java.awt.Font
 import java.awt.Point
 import java.awt.Rectangle
+import java.io.File
 import javax.swing.AbstractListModel
 import javax.swing.DefaultListModel
 import javax.swing.JList
@@ -84,7 +85,7 @@ class SourceMapPanel(val frame: ComputerFrame): JPanel(), CoroutineScope by Coro
                 } else {
                     sourceArea.document = files.getOrPut(file) {
                         DefaultStyledDocument().also { doc ->
-                            doc.insertString(0, sourceMap.root.resolve(file).readText(), SimpleAttributeSet.EMPTY)
+                            doc.insertString(0, File(file).readText(), SimpleAttributeSet.EMPTY)
                         }
                     }
                 }

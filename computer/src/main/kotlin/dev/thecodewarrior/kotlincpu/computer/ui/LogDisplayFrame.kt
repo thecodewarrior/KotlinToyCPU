@@ -20,6 +20,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.awt.Font
+import java.awt.Rectangle
 import java.awt.event.WindowListener
 import javax.swing.JFrame
 import javax.swing.JScrollPane
@@ -44,7 +45,13 @@ class LogDisplayFrame(override var computer: Computer): JFrame(), Peripheral, Co
 
         launch {
             for(string in output) {
+                val atBottom = log.bounds.maxY.toInt() == scroll.viewport.height
                 logDocument.insertString(logDocument.length, string, SimpleAttributeSet.EMPTY)
+                if(atBottom) {
+                    scroll.revalidate()
+                    val sb = scroll.verticalScrollBar
+                    sb.value = sb.maximum
+                }
             }
         }
     }

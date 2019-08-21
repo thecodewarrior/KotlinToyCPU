@@ -102,10 +102,7 @@ class ComputerFrame(var program: File): JFrame(), WindowListener, CoroutineScope
     }
 
     fun load() {
-        computer.memory.buffer.also { buf ->
-            buf.rewind()
-            buf.put(program.readBytes())
-        }
+        computer.loadProgram(program.readBytes())
         sourceMapPanel.sourceMap = SourceMap(program.resolveSibling(program.name + ".map"))
     }
 

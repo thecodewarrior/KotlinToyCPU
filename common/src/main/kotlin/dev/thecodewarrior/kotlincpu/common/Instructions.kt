@@ -20,11 +20,17 @@ object Instructions {
 
     val instructions = mutableListOf<Insn>()
 
-    val pseudo_data = +Insn("pseudo_data", 0u) %
+    val pseudo_data = Insn("pseudo_data", 0u) %
         """
              N/A : %data type ... ; enum ...
                   Arbitrary data
         """.trimIndent()
+    val pseudo_null = Insn("pseudo_null", 0u) %
+        """
+             N/A : N/A
+                  A generic pseudo instruction for markers, etc.
+        """.trimIndent()
+
     val nop = +Insn("nop", opcodes.create()) %
         """
             %op%: nop

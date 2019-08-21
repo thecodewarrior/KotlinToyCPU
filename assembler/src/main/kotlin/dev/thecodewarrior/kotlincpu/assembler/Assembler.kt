@@ -3,6 +3,7 @@ package dev.thecodewarrior.kotlincpu.assembler
 import dev.thecodewarrior.kotlincpu.assembler.instructions.Instruction
 import dev.thecodewarrior.kotlincpu.assembler.instructions.InstructionRegistry
 import dev.thecodewarrior.kotlincpu.assembler.instructions.Location
+import dev.thecodewarrior.kotlincpu.assembler.instructions.NullInstruction
 import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Token
 import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Tokenizer
 import dev.thecodewarrior.kotlincpu.assembler.util.buildBytes
@@ -14,15 +15,23 @@ import dev.thecodewarrior.kotlincpu.common.util.putUShort
 import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 
-class Parser(val file: String, val text: String) {
-    val registers = mutableMapOf<String, UByte>()
-
+class Assembler() {
     val instructions = mutableListOf<Instruction>()
+    val programEndInsn = NullInstruction().also {
+        it.location = Location("", 0)
+    }
+
     var context = Context(null)
+    private val files = mutableMapOf<String, AssemblyFile>()
 
     init {
-        val commentRegex = ";[^\"]*$".toRegex()
-        val tokens = Tokenizer(text.lines().joinToString("\n") { it.replace(commentRegex, " ") })
+        context.labels.add(Label("program_end", programEndInsn))
+    }
+
+    fun parse(file: AssemblyFile) {
+        files[file.name] = file
+        val commentRegex = "^#.*$|;[^\"]*$".toRegex()
+        val tokens = Tokenizer(file.lines.joinToString("\n") { it.replace(commentRegex, " ") })
         val labels = mutableSetOf<String>()
         while(!tokens.eof()) {
             if(tokens.peek().testLine()) {
@@ -59,7 +68,7 @@ class Parser(val file: String, val text: String) {
             val factory = InstructionRegistry.factoryMap.getValue(name.value)
             val insn = factory.parse(this, tokens)
 
-            insn.location = Location(file, name.line)
+            insn.location = Location(file.name, name.line)
             insn.context = context
             if(condition != null)
                 insn.condition = Condition.valueOf(condition.toUpperCase())
@@ -70,23 +79,38 @@ class Parser(val file: String, val text: String) {
             if(!tokens.eof())
                 tokens.pop().expectLine()
         }
+    }
 
-        instructions.fold(0) { address, instruction ->
+    /**
+     * Finishes up, sorting data instructions to the end of the file and
+     */
+    fun finish() {
+        val data = mutableListOf<Instruction>()
+        instructions.removeAll {
+            val isData = it.insn == Instructions.pseudo_data
+            if(isData) data.add(it)
+            isData
+        }
+        instructions.addAll(data)
+        instructions.add(programEndInsn)
+
+        instructions.fold(4) { address, instruction ->
             instruction.address = address
-            address + 2 + instruction.insn.payloadWidth
+            address + instruction.width
         }
     }
 
     fun write(): ByteBuffer {
-        val lines = text.lines()
-
-        val size = instructions.sumBy { 2 + it.width }
+        val size = instructions.sumBy { it.width } + 4
         val buffer = ByteBuffer.allocate(size)
         logger.debug("Writing instructions")
 
         val programDigits = (instructions.lastOrNull()?.address ?: 0).toString(16).length
         val maxInsnWidth = instructions.map { it.insn.payloadWidth * 2 + it.insn.payload.filter { it.type !is DataType.asm_const }.size }.max() ?: 0
         val maxNameWidth = instructions.maxBy { it.insn.name.length }?.insn?.name?.length ?: 0
+
+        val main = context.labels.find { it.name == "main" }?.instruction?.address ?: 4
+        buffer.putUInt(main.toUInt())
 
         instructions.forEach { instruction ->
             val insn = instruction.insn
@@ -109,7 +133,7 @@ class Parser(val file: String, val text: String) {
                     }
                     .joinToString(" ")
 
-                val sourceLine = lines.getOrNull(instruction.location.line)
+                val sourceLine = files[instruction.location.file]?.lines?.getOrNull(instruction.location.line)
                 logger.debug(
                     "0x${instruction.address.toString(16).padStart(programDigits, '0')}: " +
                         "${insn.name.padEnd(maxNameWidth, ' ')} $opcodeText " +
@@ -118,9 +142,13 @@ class Parser(val file: String, val text: String) {
                 )
             }
 
-            if(insnArray.size != instruction.width)
-                error("Expected size ${instruction.width} is not actual size ${insnArray.size}")
-            if(insn != Instructions.pseudo_data)
+            if(
+                instruction.insn != Instructions.pseudo_data && instruction.insn != Instructions.pseudo_null &&
+                insnArray.size + 2 != instruction.width
+            )
+                error("Expected size ${instruction.width} is not actual size ${insnArray.size + 2}")
+
+            if(insn != Instructions.pseudo_data && insn != Instructions.pseudo_null)
                 buffer.putUShort(opcode)
             buffer.put(insnArray)
         }
@@ -150,4 +178,4 @@ class Parser(val file: String, val text: String) {
     }
 }
 
-private val logger = LoggerFactory.getLogger(Parser::class.java)
+private val logger = LoggerFactory.getLogger(Assembler::class.java)

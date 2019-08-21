@@ -1,8 +1,8 @@
 package dev.thecodewarrior.kotlincpu.assembler.instructions
 
-import dev.thecodewarrior.kotlincpu.assembler.Parser
+import dev.thecodewarrior.kotlincpu.assembler.Assembler
 import dev.thecodewarrior.kotlincpu.assembler.tokenizer.Tokenizer
 
 abstract class InsnFactory(val name: String) {
-    abstract fun parse(parser: Parser, tokenizer: Tokenizer): Instruction
+    abstract fun parse(assembler: Assembler, tokenizer: Tokenizer): Instruction
 }

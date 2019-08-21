@@ -5,12 +5,9 @@ import java.io.File
 import java.nio.ByteBuffer
 
 class SourceMap {
-    val root: File
     val locations = mutableMapOf<Int, Location>()
 
-    constructor() {
-        root = File(".")
-    }
+    constructor()
 
     constructor(file: File) {
         val buffer = ByteBuffer.wrap(file.readBytes())
@@ -31,8 +28,6 @@ class SourceMap {
                 error("duplicate address ${address.toString(16)}")
             locations[address] = Location(file, line)
         }
-
-        root = file.parentFile
     }
 
     operator fun get(address: Int): Location? {
