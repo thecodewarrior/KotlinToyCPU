@@ -31,16 +31,13 @@ next:
         add index, 4, index
         jmp :test_loop
 success:
-    mov :found_message, r0
-    pcall PTEXT, PRINT_ASCIIZ
-    push r0, r1, r2, r3
-    mov candidate, r0
-    call :print_hex
-    call :println
-    pop r0, r1, r2, r3
     str candidate, [latestPrime]
     add latestPrime, 4, latestPrime
+
+    push candidate
+    mov :found_message, r0
+    pcall PTEXT, PRINTF
 failure:
     jmp :next
 
-found_message: %data .asciiz "Found a prime: "
+found_message: %data .asciiz "Found a prime: %d\n"

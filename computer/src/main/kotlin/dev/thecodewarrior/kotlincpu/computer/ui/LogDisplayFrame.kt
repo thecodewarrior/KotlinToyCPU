@@ -93,9 +93,18 @@ class LogDisplayFrame(override var computer: Computer): JFrame(), Peripheral, Co
                     val arguments: Array<Any> = (stackArguments as List<Any>).toTypedArray()
                     placeholders.forEachIndexed { i, match ->
                         val (parameter, flags, width, precision, length, type) = match.destructured
-                        if(type == "s") {
-                            val parameterIndex = if(parameter == "") i else parameter.toInt()
-                            arguments[parameterIndex] = computer.memory.buffer.getAsciiz(stackArguments[parameterIndex].toInt())
+                        val parameterIndex = if (parameter == "") i else parameter.toInt()
+                        val argument = stackArguments[parameterIndex]
+
+                        arguments[parameterIndex] = when(type) {
+                            "s" -> computer.memory.buffer.getAsciiz(argument.toInt())
+                            "d", "i" -> argument.toInt()
+                            "u", "x", "X", "o" -> argument.toLong()
+                            "f", "F" -> Float.fromBits(argument.toInt())
+                            // "e", "E", "g", "G", // unsupported 64-bit float formats
+                            "c" -> argument.toInt().toChar()
+                            // "p", "a", "A", // unsupported `void *` and 64-bit float formats
+                            else -> argument
                         }
                     }
 
