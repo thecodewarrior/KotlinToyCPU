@@ -48,11 +48,11 @@ class LogDisplayFrame(override var computer: Computer): JFrame(), Peripheral, Co
 
         launch {
             for(string in output) {
-                val atBottom = log.bounds.maxY.toInt() == scroll.viewport.height
+                val sb = scroll.verticalScrollBar
+                val atBottom = sb.value == sb.maximum
                 logDocument.insertString(logDocument.length, string, SimpleAttributeSet.EMPTY)
                 if(atBottom) {
                     scroll.revalidate()
-                    val sb = scroll.verticalScrollBar
                     sb.value = sb.maximum
                 }
             }
